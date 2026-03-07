@@ -1,0 +1,1141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Watch Episode - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <style>
+    .player-container {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .episode-page-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+      align-items: start;
+      margin-bottom: 2.5rem;
+    }
+
+    .episode-sidebar {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 90px;
+      max-height: calc(100vh - 110px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .episode-sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .episode-sidebar-list {
+      overflow-y: auto;
+      flex: 1;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .episode-sidebar-list::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .episode-sidebar-list::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .episode-sidebar-list::-webkit-scrollbar-thumb {
+      background: var(--glass-border-hover);
+      border-radius: 4px;
+    }
+
+    .ep-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.25s ease;
+      border: 1px solid transparent;
+      position: relative;
+    }
+
+    .ep-list-item:hover {
+      background: var(--glass-bg-hover);
+      color: var(--text-primary);
+      border-color: var(--glass-border);
+    }
+
+    .ep-list-item.active {
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent);
+      border-color: rgba(99, 102, 241, 0.3);
+      font-weight: 700;
+    }
+
+    .ep-list-item .ep-num {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    .ep-list-item .ep-playing-badge {
+      font-size: 0.7rem;
+      background: var(--accent);
+      color: white;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
+      font-weight: 600;
+      margin-left: auto;
+    }
+
+    .dl-wrapper {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 900px;
+    }
+
+    .dl-main-title {
+      background: #c5c5c5;
+      color: #111;
+      text-align: center;
+      padding: 0.6rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .dl-sub-title {
+      background: #6c75ff;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .dl-table {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid #1e1e1e;
+    }
+
+    .dl-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 110px;
+      border-bottom: 2px solid #1e1e1e;
+    }
+
+    .dl-row:last-child {
+      border-bottom: none;
+    }
+
+    .dl-quality {
+      background: #3a3a3a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      border-right: 2px solid #111;
+    }
+
+    .dl-links {
+      background: #ffffff;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dl-size {
+      background: #3a3a3a;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 2px solid #111;
+    }
+
+    .dl-link-item {
+      color: #2a75d3;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .dl-link-item:hover {
+      text-decoration: underline;
+      color: #1e3a8a;
+    }
+
+    .dl-separator {
+      color: #94a3b8;
+      font-weight: 300;
+      user-select: none;
+      font-size: 0.85rem;
+      margin: 0 0.15rem;
+    }
+
+    .batch-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .batch-main {
+      min-width: 0;
+    }
+
+    .batch-sidebar {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 90px;
+      max-height: calc(100vh - 110px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .batch-sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .batch-sidebar-content {
+      overflow-y: auto;
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar-thumb {
+      background: var(--glass-border-hover);
+      border-radius: 4px;
+    }
+
+    .sidebar-anime-card {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .sidebar-anime-card:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .sidebar-anime-poster {
+      width: 60px;
+      height: 85px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .sidebar-anime-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar-anime-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+
+    .sidebar-anime-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .dl-row {
+        grid-template-columns: 80px 1fr 80px;
+      }
+
+      .dl-quality,
+      .dl-size,
+      .dl-links {
+        padding: 0.4rem;
+        font-size: 0.75rem;
+      }
+
+      .dl-link-item {
+        font-size: 0.75rem;
+      }
+
+      .dl-main-title,
+      .dl-sub-title {
+        font-size: 0.85rem;
+      }
+    }
+
+    @media (max-width: 1024px) {
+      .episode-page-layout {
+        grid-template-columns: 1fr 260px;
+      }
+
+      .batch-layout {
+        grid-template-columns: 1fr 260px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .episode-page-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .episode-sidebar {
+        position: relative;
+        top: 0;
+        max-height: 350px;
+      }
+
+      .batch-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .batch-sidebar {
+        position: relative;
+        top: 0;
+        max-height: 400px;
+      }
+    }
+
+    .player-wrapper {
+      position: relative;
+      width: 100%;
+      margin: 0 auto 1.5rem;
+      aspect-ratio: 16 / 9;
+      background: #000;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .player-wrapper iframe {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      pointer-events: auto;
+    }
+
+    .player-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .player-header {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (min-width: 640px) {
+      .player-header {
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        gap: 1.5rem;
+      }
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      width: fit-content;
+      flex-shrink: 0;
+      white-space: nowrap;
+      height: fit-content;
+      margin-top: 0.2rem;
+    }
+
+    .back-btn:hover {
+      background: var(--glass-bg-hover);
+      color: var(--accent);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(-4px);
+    }
+
+    .player-warning {
+      background: rgba(234, 179, 8, 0.05);
+      border: 1px solid rgba(234, 179, 8, 0.2);
+      border-left: 4px solid #eab308;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1.5rem;
+      color: #fef08a;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .episode-title {
+      font-size: 1.45rem;
+      font-weight: 800;
+      margin: 0;
+      color: var(--text-primary);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      line-height: 1.4;
+      flex: 1;
+    }
+
+    .servers-container {
+      margin-bottom: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .servers-title {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quality-group {
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 0.6rem;
+      transition: border-color 0.3s;
+    }
+
+    .quality-group.open {
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+
+    .quality-toggle {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 1.1rem;
+      background: var(--glass-bg);
+      border: none;
+      cursor: pointer;
+      color: var(--text-primary);
+      font-weight: 600;
+      font-size: 0.95rem;
+      transition: background 0.25s;
+      gap: 0.75rem;
+    }
+
+    .quality-toggle:hover {
+      background: var(--glass-bg-hover);
+    }
+
+    .quality-toggle .q-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 0.2rem 0.65rem;
+      border-radius: 6px;
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .quality-toggle .q-chevron {
+      margin-left: auto;
+      transition: transform 0.3s ease;
+      color: var(--text-secondary);
+    }
+
+    .quality-group.open .q-chevron {
+      transform: rotate(180deg);
+    }
+
+    .quality-servers {
+      display: none;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--glass-border);
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .quality-group.open .quality-servers {
+      display: flex;
+    }
+
+    .server-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.5rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .server-btn:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--accent);
+      color: var(--text-primary);
+    }
+
+    .server-btn.active {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+    }
+
+    .navigation-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: space-between;
+      margin-top: 1.5rem;
+    }
+
+    .nav-btn {
+      flex: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.875rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      background: var(--glass-bg);
+    }
+
+    @media (max-width: 768px) {
+      .navigation-buttons {
+        flex-direction: column;
+      }
+
+      .servers-grid {
+        gap: 0.5rem;
+      }
+
+      .server-btn {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="episode-page-layout">
+
+      <!-- LEFT: Player -->
+      <div class="player-container fade-in">
+        <div class="player-header">
+          <a href="#" id="back-to-anime" class="back-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Anime
+          </a>
+          <h1 class="episode-title" id="episode-title">Loading...</h1>
+        </div>
+
+        <div class="player-wrapper" id="player-wrapper">
+          <div
+            style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">
+            <div style="text-align: center;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 1rem; opacity: 0.5;">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              <div>Select a server to start watching</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="player-warning">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+            <line x1="12" y1="9" x2="12" y2="13"></line>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+          </svg>
+          <div>
+            <strong style="color: white;">Note:</strong> Streaming servers may show ads or popups. Close any popup
+            windows and click play again. Use an ad-blocker for better experience.
+          </div>
+        </div>
+
+        <div class="servers-container">
+          <div class="servers-title">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+              <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+              <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+              <line x1="6" y1="6" x2="6.01" y2="6"></line>
+              <line x1="6" y1="18" x2="6.01" y2="18"></line>
+            </svg>
+            Available Servers
+          </div>
+          <div id="servers-grid"></div>
+        </div>
+
+        <div class="navigation-buttons" id="navigation-buttons">
+          <a href="#" class="nav-btn" id="prev-btn">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            Previous Episode
+          </a>
+          <a href="#" class="nav-btn" id="next-btn">
+            Next Episode
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT: Episode List Sidebar -->
+      <aside class="episode-sidebar fade-in" id="episode-list-section" style="display: none;">
+        <div class="episode-sidebar-header">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="8" y1="6" x2="21" y2="6"></line>
+            <line x1="8" y1="12" x2="21" y2="12"></line>
+            <line x1="8" y1="18" x2="21" y2="18"></line>
+            <line x1="3" y1="6" x2="3.01" y2="6"></line>
+            <line x1="3" y1="12" x2="3.01" y2="12"></line>
+            <line x1="3" y1="18" x2="3.01" y2="18"></line>
+          </svg>
+          All Episodes
+        </div>
+        <div class="episode-sidebar-list" id="episode-list-grid"></div>
+      </aside>
+
+    </div>
+
+    <!-- Download section below the two columns -->
+    <div class="batch-layout">
+      <div class="batch-main">
+        <section class="section" id="download-section" style="display: none;">
+          <div class="section-header">
+            <h2 class="section-title" style="display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Download Links
+            </h2>
+          </div>
+          <div id="download-grid"></div>
+        </section>
+      </div>
+
+      <aside class="batch-sidebar" id="recommended-sidebar" style="display: none;">
+        <div class="batch-sidebar-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+          Recommended
+        </div>
+        <div class="batch-sidebar-content" id="recommended-list">
+          <div class="skeleton" style="height: 85px;"></div>
+          <div class="skeleton" style="height: 85px;"></div>
+          <div class="skeleton" style="height: 85px;"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    let episodeData = null;
+
+    async function loadEpisode() {
+      const slug = window.location.pathname.split('/').pop();
+      const episodeTitle = document.getElementById('episode-title');
+      const serversGrid = document.getElementById('servers-grid');
+      const playerWrapper = document.getElementById('player-wrapper');
+
+      console.log('Loading episode:', slug);
+
+      try {
+        const response = await api.fetchEpisode(slug);
+        console.log('Episode response:', response);
+
+        episodeData = response.data || response;
+
+        // Set title
+        episodeTitle.textContent = episodeData.title || 'Episode';
+
+        // Set back to anime link
+        if (episodeData.animeId) {
+          document.getElementById('back-to-anime').href = `/detail/${episodeData.animeId}`;
+        }
+
+        // Load default streaming URL if available
+        if (episodeData.defaultStreamingUrl) {
+          playerWrapper.innerHTML = `
+            <iframe 
+              src="${episodeData.defaultStreamingUrl}" 
+              allowfullscreen 
+              allow="autoplay; encrypted-media; picture-in-picture"
+              referrerpolicy="no-referrer"
+            ></iframe>
+          `;
+        }
+
+        // Load servers grouped by quality
+        if (episodeData.server && episodeData.server.qualities) {
+          const serversGrid = document.getElementById('servers-grid');
+          serversGrid.innerHTML = '';
+          let firstBtn = null;
+
+          episodeData.server.qualities.forEach((quality, qIndex) => {
+            let qualityTitle = quality.title || `Quality ${qIndex + 1}`;
+            qualityTitle = qualityTitle.replace(/_/g, ' ');
+
+            const group = document.createElement('div');
+            group.className = 'quality-group' + (qIndex === 0 ? ' open' : '');
+
+            const toggle = document.createElement('button');
+            toggle.className = 'quality-toggle';
+            toggle.innerHTML = `
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+                <line x1="6" y1="6" x2="6.01" y2="6"></line>
+                <line x1="6" y1="18" x2="6.01" y2="18"></line>
+              </svg>
+              <span>${qualityTitle}</span>
+              <span class="q-badge">${quality.serverList.length} server${quality.serverList.length > 1 ? 's' : ''}</span>
+              <svg class="q-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            `;
+
+            toggle.addEventListener('click', () => {
+              const isOpen = group.classList.contains('open');
+              // Close all
+              document.querySelectorAll('.quality-group').forEach(g => g.classList.remove('open'));
+              // Toggle this one
+              if (!isOpen) group.classList.add('open');
+            });
+
+            const serverList = document.createElement('div');
+            serverList.className = 'quality-servers';
+
+            quality.serverList.forEach((server) => {
+              const serverBtn = document.createElement('button');
+              serverBtn.className = 'server-btn';
+              serverBtn.innerHTML = `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+                ${server.title}
+              `;
+              serverBtn.onclick = () => loadServer(server, serverBtn);
+              if (!firstBtn) firstBtn = serverBtn;
+              serverList.appendChild(serverBtn);
+            });
+
+            group.appendChild(toggle);
+            group.appendChild(serverList);
+            serversGrid.appendChild(group);
+          });
+
+          // Auto-click first server if no default URL
+          if (!episodeData.defaultStreamingUrl && firstBtn) {
+            firstBtn.click();
+          }
+        } else {
+          document.getElementById('servers-grid').innerHTML = '<p style="color: var(--text-secondary);">No servers available</p>';
+        }
+
+        // Setup navigation
+        setupNavigation();
+
+        // Load episode list
+        if (episodeData.info && episodeData.info.episodeList) {
+          const episodeListSection = document.getElementById('episode-list-section');
+          const episodeListGrid = document.getElementById('episode-list-grid');
+          episodeListSection.style.display = 'flex';
+
+          episodeData.info.episodeList.forEach(ep => {
+            const isCurrent = ep.episodeId === slug;
+            const epItem = document.createElement('a');
+            epItem.href = isCurrent ? '#' : `/episode/${ep.episodeId}`;
+            epItem.className = 'ep-list-item' + (isCurrent ? ' active' : '');
+
+            epItem.innerHTML = `
+              <span class="ep-num">Episode ${ep.eps}</span>
+              ${isCurrent ? '<span class="ep-playing-badge">▶ Playing</span>' : ''}
+            `;
+
+            episodeListGrid.appendChild(epItem);
+
+            // Auto-scroll to current episode
+            if (isCurrent) {
+              setTimeout(() => epItem.scrollIntoView({ behavior: 'smooth', block: 'center' }), 300);
+            }
+          });
+        }
+
+        // Load download links
+        if (episodeData.downloadUrl && episodeData.downloadUrl.qualities) {
+          const downloadSection = document.getElementById('download-section');
+          const downloadGrid = document.getElementById('download-grid');
+          downloadSection.style.display = 'block';
+
+          downloadGrid.innerHTML = '';
+          // Wrap entire section
+          const wrapper = document.createElement('div');
+          wrapper.className = 'dl-wrapper';
+
+          const episodeName = episodeData.title || `Episode ${slug}`;
+
+          // Main Header (Light Grey)
+          const mainHeader = document.createElement('div');
+          mainHeader.className = 'dl-main-title';
+          mainHeader.textContent = `Link Download ${episodeName} Lengkap`;
+          wrapper.appendChild(mainHeader);
+
+          // Sub Header (Purple)
+          const subHeader = document.createElement('div');
+          subHeader.className = 'dl-sub-title';
+          subHeader.textContent = `${episodeName} - [AnimeStream]`;
+          wrapper.appendChild(subHeader);
+
+          // Group qualities into MP4, MKV, and Others
+          const mp4 = [];
+          const mkv = [];
+          const others = [];
+
+          episodeData.downloadUrl.qualities.forEach(quality => {
+            const titleLower = (quality.title || '').toLowerCase();
+            if (titleLower.includes('mkv')) {
+              mkv.push(quality);
+            } else if (titleLower.includes('mp4')) {
+              mp4.push(quality);
+            } else {
+              others.push(quality);
+            }
+          });
+
+          // Order groups as MP4, MKV, Others
+          const groups = [mp4, mkv, others].filter(g => g.length > 0);
+
+          groups.forEach((groupQualities, index) => {
+            const tableContainer = document.createElement('div');
+            tableContainer.className = 'dl-table';
+
+            // Add margin between tables
+            if (index < groups.length - 1) {
+              tableContainer.style.marginBottom = '0.75rem';
+            }
+
+            groupQualities.forEach(quality => {
+              const row = document.createElement('div');
+              row.className = 'dl-row';
+
+              let linksHTML = quality.urls.map((url, i) => {
+                const link = `<a href="${url.url}" target="_blank" rel="noopener noreferrer" class="dl-link-item">${url.title}</a>`;
+                const sep = i < quality.urls.length - 1 ? '<span class="dl-separator">|</span>' : '';
+                return link + sep;
+              }).join('');
+
+              row.innerHTML = `
+                <div class="dl-quality">${quality.title.replace(/_/g, ' ')}</div>
+                <div class="dl-links">${linksHTML}</div>
+                <div class="dl-size">${quality.size}</div>
+              `;
+
+              tableContainer.appendChild(row);
+            });
+
+            wrapper.appendChild(tableContainer);
+          });
+
+          downloadGrid.appendChild(wrapper);
+        }
+
+        // Load recommended anime from anime detail
+        const animeSlug = episodeData.animeId || episodeData.anime?.slug;
+        if (animeSlug) {
+          try {
+            const animeResponse = await api.fetchAnimeDetail(animeSlug);
+            const animeData = animeResponse.data || animeResponse;
+            const recommended = animeData.recommendedAnimeList || [];
+
+            if (recommended.length > 0) {
+              const recommendedSidebar = document.getElementById('recommended-sidebar');
+              const recommendedList = document.getElementById('recommended-list');
+              recommendedSidebar.style.display = 'flex';
+              recommendedList.innerHTML = '';
+
+              recommended.slice(0, 10).forEach(anime => {
+                const card = document.createElement('a');
+                card.className = 'sidebar-anime-card';
+                card.href = `/anime/${anime.animeId || anime.slug}`;
+
+                const poster = anime.poster || 'https://via.placeholder.com/60x85';
+                const title = anime.title || 'Unknown';
+                const score = anime.score || '';
+                const type = anime.type || '';
+
+                card.innerHTML = `
+                  <img src="${poster}" alt="${title}" class="sidebar-anime-poster" onerror="this.src='https://via.placeholder.com/60x85'">
+                  <div class="sidebar-anime-info">
+                    <div class="sidebar-anime-title">${title}</div>
+                    <div class="sidebar-anime-meta">
+                      ${score ? `<span>⭐ ${score}</span>` : ''}
+                      ${type ? `<span>📺 ${type}</span>` : ''}
+                    </div>
+                  </div>
+                `;
+                recommendedList.appendChild(card);
+              });
+            }
+          } catch (err) {
+            console.log('Could not load recommended anime:', err.message);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error loading episode:', error);
+        episodeTitle.textContent = 'Failed to load episode';
+        playerWrapper.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); padding: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">😔</div>
+            <p>Failed to load episode</p>
+            <p style="font-size: 0.9rem; margin-top: 0.5rem;">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadServer(server, button) {
+      const playerWrapper = document.getElementById('player-wrapper');
+
+      // Update active button
+      if (button) {
+        document.querySelectorAll('.server-btn').forEach(btn => btn.classList.remove('active'));
+        button.classList.add('active');
+      }
+
+      // Show loading
+      playerWrapper.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">Loading stream...</div>';
+
+      try {
+        // Fetch stream URL using serverId
+        const serverId = server.serverId || server.id;
+
+        if (serverId) {
+          console.log('Fetching stream for server:', serverId);
+          const streamResponse = await api.fetchStream(serverId);
+          console.log('Stream response:', streamResponse);
+
+          // Extract URL from response
+          const streamUrl = streamResponse.data?.url || streamResponse.url;
+
+          if (streamUrl) {
+            playerWrapper.innerHTML = `
+              <iframe 
+                src="${streamUrl}" 
+                allowfullscreen 
+                allow="autoplay; encrypted-media; picture-in-picture"
+                referrerpolicy="no-referrer"
+              ></iframe>
+            `;
+          } else {
+            playerWrapper.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">Stream URL not available</div>';
+          }
+        } else {
+          playerWrapper.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">Server ID not found</div>';
+        }
+      } catch (error) {
+        console.error('Error loading server:', error);
+        playerWrapper.innerHTML = `<div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary); padding: 2rem; text-align: center;">
+          <p>Failed to load stream</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem;">${error.message}</p>
+        </div>`;
+      }
+    }
+
+    function setupNavigation() {
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      // Previous episode
+      if (episodeData.hasPrevEpisode && episodeData.prevEpisode) {
+        const prevSlug = episodeData.prevEpisode.episodeId || episodeData.prevEpisode.slug;
+        prevBtn.href = `/episode/${prevSlug}`;
+      } else {
+        prevBtn.style.opacity = '0.5';
+        prevBtn.style.pointerEvents = 'none';
+      }
+
+      // Next episode
+      if (episodeData.hasNextEpisode && episodeData.nextEpisode) {
+        const nextSlug = episodeData.nextEpisode.episodeId || episodeData.nextEpisode.slug;
+        nextBtn.href = `/episode/${nextSlug}`;
+      } else {
+        nextBtn.style.opacity = '0.5';
+        nextBtn.style.pointerEvents = 'none';
+      }
+    }
+
+    loadEpisode();
+  </script>
+</body>
+
+</html>

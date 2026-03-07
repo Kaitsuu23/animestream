@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Detail - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <link rel="stylesheet" href="/style/detail.css">
+  <style>
+    .detail-container {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .detail-poster {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .detail-poster img {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.3s;
+    }
+
+    .detail-poster img:hover {
+      transform: scale(1.02);
+    }
+
+    .detail-info h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .detail-japanese {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-badge {
+      padding: 0.5rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-badge:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+      color: var(--text-primary);
+    }
+
+    .detail-synopsis {
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      white-space: pre-line;
+    }
+
+    .genres {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .genre-tag {
+      padding: 0.5rem 1.25rem;
+      background: var(--accent);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .genre-tag:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .episodes-container {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .episode-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.875rem 1.25rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+    }
+
+    .episode-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      background: var(--accent);
+      transform: scaleY(0);
+      transition: transform 0.4s ease;
+      transform-origin: bottom;
+    }
+
+    .episode-item:hover {
+      background: var(--glass-bg-hover);
+      border-color: rgba(99, 102, 241, 0.3);
+      transform: translateX(6px);
+      box-shadow: 0 8px 32px rgba(99, 102, 241, 0.1);
+    }
+
+    .episode-item:hover::before {
+      transform: scaleY(1);
+    }
+
+    .episode-play-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.4s ease;
+      color: var(--accent);
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+
+    .episode-item:hover .episode-play-icon {
+      background: var(--accent);
+      color: white;
+      transform: scale(1.1) rotate(10deg);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.4);
+    }
+
+    .episode-details {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex: 1;
+    }
+
+    .episode-title {
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text-primary);
+      transition: color 0.3s ease;
+    }
+
+    .episode-item:hover .episode-title {
+      color: var(--accent);
+    }
+
+    .episode-date {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 768px) {
+      .detail-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .detail-poster {
+        position: relative;
+        top: 0;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .detail-info h1 {
+        font-size: 1.75rem;
+      }
+
+      .episode-item {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="detail-container" id="detail-content">
+      <div class="skeleton" style="height: 400px;"></div>
+      <div class="skeleton" style="height: 400px;"></div>
+    </div>
+
+    <section class="section" id="batch-section" style="display: none;">
+      <div class="section-header">
+        <h2 class="section-title" style="display: flex; align-items: center; gap: 0.75rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Batch Download
+        </h2>
+      </div>
+      <div class="episodes-container" id="batch-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title" style="display: flex; align-items: center; gap: 0.75rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          Episodes
+        </h2>
+      </div>
+      <div class="episodes-container" id="episodes-grid"></div>
+    </section>
+
+    <section class="section" id="recommended-section" style="display: none;">
+      <div class="section-header">
+        <h2 class="section-title" style="display: flex; align-items: center; gap: 0.75rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+          Recommended Anime
+        </h2>
+      </div>
+      <div class="anime-grid" id="recommended-grid"></div>
+    </section>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    async function loadBatchDownloads(batchId) {
+      const batchSection = document.getElementById('batch-section');
+      const batchGrid = document.getElementById('batch-grid');
+
+      try {
+        // Fetch batch data to get episode count
+        let episodeCount = '';
+
+        try {
+          const batchResponse = await api.fetchBatch(batchId);
+          const batchData = batchResponse.data || batchResponse;
+          const episodes = batchData.episodes || '';
+          if (episodes) {
+            episodeCount = `${episodes} Episodes`;
+          }
+        } catch (err) {
+          console.log('Could not fetch batch info:', err.message);
+        }
+
+        // Show a single link to batch page
+        batchSection.style.display = 'block';
+        batchGrid.innerHTML = '';
+
+        const batchItem = document.createElement('a');
+        batchItem.className = 'episode-item fade-in';
+        batchItem.href = `/batch/${batchId}`;
+
+        batchItem.innerHTML = `
+          <div class="episode-play-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+          </div>
+          <div class="episode-details">
+            <div class="episode-title">Batch Download</div>
+            <div class="episode-date">
+              ${episodeCount ? ` ${episodeCount}` : ' Download semua episode sekaligus'}
+            </div>
+          </div>
+        `;
+        batchGrid.appendChild(batchItem);
+      } catch (error) {
+        console.log('No batch downloads available:', error.message);
+      }
+    }
+
+    async function loadDetail() {
+      const slug = window.location.pathname.split('/').pop();
+      const detailContent = document.getElementById('detail-content');
+      const episodesGrid = document.getElementById('episodes-grid');
+
+      console.log('Loading anime detail for slug:', slug);
+
+      try {
+        const response = await api.fetchAnimeDetail(slug);
+        console.log('Detail response:', response);
+
+        // Extract data from response
+        const data = response.data || response;
+
+        const title = data.title || 'Unknown Title';
+        const poster = data.poster || 'https://via.placeholder.com/300x400';
+        const japanese = data.japanese || '';
+        const score = data.score || '';
+        const type = data.type || '';
+        const status = data.status || '';
+        const duration = data.duration || '';
+        const aired = data.aired || '';
+        const studios = data.studios || '';
+
+        // Extract synopsis
+        let synopsis = 'No synopsis available.';
+        if (data.synopsis && data.synopsis.paragraphs) {
+          synopsis = data.synopsis.paragraphs.join('\n\n');
+        } else if (data.synopsis) {
+          synopsis = data.synopsis;
+        }
+
+        // Extract genres
+        let genresHTML = '';
+        const genres = data.genreList || data.genres || [];
+        if (genres.length > 0) {
+          genresHTML = `
+            <div class="genres">
+              ${genres.map(genre => {
+            const genreName = genre.title || genre.name || '';
+            const genreSlug = genre.genreId || genre.slug || genreName.toLowerCase();
+            return `<a href="/genres?genre=${genreSlug}" class="genre-tag">${genreName}</a>`;
+          }).join('')}
+            </div>
+          `;
+        }
+
+        detailContent.innerHTML = `
+          <div class="detail-poster fade-in">
+            <img src="${poster}" 
+                 alt="${title}"
+                 onerror="this.src='https://via.placeholder.com/220x320'">
+          </div>
+          <div class="detail-info fade-in">
+            <h1>${title}</h1>
+            ${japanese ? `<p class="detail-japanese">${japanese}</p>` : ''}
+            <div class="detail-meta">
+              ${status ? `<span class="meta-badge">📺 ${status}</span>` : ''}
+              ${type ? `<span class="meta-badge">🎬 ${type}</span>` : ''}
+              ${score ? `<span class="meta-badge">⭐ ${score}</span>` : ''}
+              ${duration ? `<span class="meta-badge">⏱️ ${duration}</span>` : ''}
+              ${aired ? `<span class="meta-badge">📅 ${aired}</span>` : ''}
+              ${studios ? `<span class="meta-badge">🎨 ${studios}</span>` : ''}
+            </div>
+            <p class="detail-synopsis">${synopsis}</p>
+            ${genresHTML}
+          </div>
+        `;
+
+        // Load episodes
+        const episodes = data.episodeList || data.episodes || [];
+        console.log('Episodes found:', episodes.length);
+
+        if (episodes.length > 0) {
+          episodesGrid.innerHTML = '';
+          episodes.forEach((episode, index) => {
+            const episodeItem = document.createElement('a');
+            episodeItem.className = 'episode-item fade-in';
+            episodeItem.style.animationDelay = `${index * 0.05}s`;
+
+            // Extract episode slug
+            const episodeSlug = episode.episodeId || episode.slug || '';
+            episodeItem.href = `/episode/${episodeSlug}`;
+
+            const episodeNumber = episode.eps || episode.episode || (index + 1);
+            const episodeTitle = `Episode ${episodeNumber}`;
+            const episodeDate = episode.date || 'Unknown Date';
+
+            episodeItem.innerHTML = `
+              <div class="episode-play-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                  <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+              </div>
+              <div class="episode-details">
+                <div class="episode-title">${episodeTitle}</div>
+                <div class="episode-date">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  ${episodeDate}
+                </div>
+              </div>
+            `;
+            episodesGrid.appendChild(episodeItem);
+          });
+        } else {
+          episodesGrid.innerHTML = '<p style="color: var(--text-secondary); text-align: center; grid-column: 1/-1;">No episodes available.</p>';
+        }
+
+        // Load batch downloads (only for completed anime)
+        console.log('Status:', status);
+        console.log('Batch data:', data.batch);
+        if (status && status.toLowerCase().includes('complete')) {
+          const batchId = data.batch?.batchId || null;
+          console.log('BatchId:', batchId);
+          if (batchId) {
+            loadBatchDownloads(batchId);
+          } else {
+            console.log('No batchId found in data');
+          }
+        } else {
+          console.log('Anime is not completed, skipping batch download');
+        }
+
+        // Load recommended anime
+        const recommended = data.recommendedAnimeList || [];
+        if (recommended.length > 0) {
+          const recommendedSection = document.getElementById('recommended-section');
+          const recommendedGrid = document.getElementById('recommended-grid');
+          recommendedSection.style.display = 'block';
+
+          recommended.forEach(anime => {
+            recommendedGrid.appendChild(ui.createAnimeCard(anime));
+          });
+        }
+
+      } catch (error) {
+        console.error('Error loading detail:', error);
+        detailContent.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">😔</div>
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 0.5rem;">Failed to load anime details.</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 2rem;">
+              ${error.message.includes('500') ? 'This anime may not be available or the API is having issues.' : error.message}
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <a href="/" style="padding: 0.75rem 1.5rem; background: var(--accent); color: white; border-radius: 10px; text-decoration: none; font-weight: 600;">
+                Go to Home
+              </a>
+              <button onclick="location.reload()" style="padding: 0.75rem 1.5rem; background: var(--glass-bg); color: var(--text-primary); border: 1px solid var(--glass-border); border-radius: 10px; cursor: pointer; font-weight: 600;">
+                Retry
+              </button>
+            </div>
+          </div>
+        `;
+      }
+    }
+
+    loadDetail();
+  </script>
+</body>
+
+</html>

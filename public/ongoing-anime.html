@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ongoing Anime - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Ongoing Anime</h2>
+      </div>
+      <div class="anime-grid" id="ongoing-grid"></div>
+    </section>
+
+    <div class="pagination" id="pagination"></div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    function getPageFromUrl() {
+      const match = window.location.pathname.match(/\/page\/(\d+)\/?$/);
+      if (match && match[1]) {
+        return parseInt(match[1]) || 1;
+      }
+      return 1;
+    }
+
+    function updateUrl(page) {
+      if (page === 1) {
+        window.history.pushState({}, '', '/ongoing-anime/');
+      } else {
+        window.history.pushState({}, '', `/ongoing-anime/page/${page}/`);
+      }
+    }
+
+    async function loadOngoing(page = 1) {
+      const grid = document.getElementById('ongoing-grid');
+      const pagination = document.getElementById('pagination');
+
+      ui.showLoading(grid, 20);
+      updateUrl(page);
+
+      try {
+        const response = await api.fetchOngoing(page);
+        console.log('Ongoing data received:', response);
+
+        grid.innerHTML = '';
+
+        const data = response.data || response;
+        const animeList = data.animeList || data.ongoing?.animeList || [];
+
+        if (animeList.length === 0) {
+          ui.showError(grid, 'No ongoing anime found.');
+          return;
+        }
+
+        animeList.forEach(anime => {
+          grid.appendChild(ui.createAnimeCard(anime));
+        });
+
+        // Scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Handle pagination
+        const paginationData = response.pagination || data.pagination;
+        if (paginationData) {
+          pagination.innerHTML = '';
+
+          const currentPage = paginationData.currentPage || 1;
+          const totalPages = paginationData.totalPages || 1;
+
+          if (totalPages > 1) {
+            const paginationDiv = document.createElement('div');
+            paginationDiv.className = 'pagination-controls';
+
+            // Previous button
+            if (currentPage > 1) {
+              const prevBtn = document.createElement('button');
+              prevBtn.innerHTML = '← Previous';
+              prevBtn.className = 'pagination-btn';
+              prevBtn.onclick = () => loadOngoing(currentPage - 1);
+              paginationDiv.appendChild(prevBtn);
+            }
+
+            // Page numbers
+            const pageNumbers = document.createElement('div');
+            pageNumbers.className = 'page-numbers';
+
+            // Show first page
+            if (currentPage > 3) {
+              const firstBtn = createPageButton(1, currentPage);
+              pageNumbers.appendChild(firstBtn);
+
+              if (currentPage > 4) {
+                const dots = document.createElement('span');
+                dots.className = 'page-dots';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+              }
+            }
+
+            // Show pages around current
+            for (let i = Math.max(1, currentPage - 2); i <= Math.min(totalPages, currentPage + 2); i++) {
+              const pageBtn = createPageButton(i, currentPage);
+              pageNumbers.appendChild(pageBtn);
+            }
+
+            // Show last page
+            if (currentPage < totalPages - 2) {
+              if (currentPage < totalPages - 3) {
+                const dots = document.createElement('span');
+                dots.className = 'page-dots';
+                dots.textContent = '...';
+                pageNumbers.appendChild(dots);
+              }
+
+              const lastBtn = createPageButton(totalPages, currentPage);
+              pageNumbers.appendChild(lastBtn);
+            }
+
+            paginationDiv.appendChild(pageNumbers);
+
+            // Next button
+            if (currentPage < totalPages) {
+              const nextBtn = document.createElement('button');
+              nextBtn.innerHTML = 'Next →';
+              nextBtn.className = 'pagination-btn';
+              nextBtn.onclick = () => loadOngoing(currentPage + 1);
+              paginationDiv.appendChild(nextBtn);
+            }
+
+            pagination.appendChild(paginationDiv);
+          }
+        }
+
+      } catch (error) {
+        console.error('Error loading ongoing anime:', error);
+        ui.showError(grid, 'Failed to load ongoing anime. Please try again later.');
+      }
+    }
+
+    function createPageButton(pageNum, currentPage) {
+      const btn = document.createElement('button');
+      btn.textContent = pageNum;
+      btn.className = 'page-btn' + (pageNum === currentPage ? ' active' : '');
+      if (pageNum !== currentPage) {
+        btn.onclick = () => loadOngoing(pageNum);
+      }
+      return btn;
+    }
+
+    // Load page from URL on initial load
+    const initialPage = getPageFromUrl();
+    loadOngoing(initialPage);
+  </script>
+</body>
+
+</html>

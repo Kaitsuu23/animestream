@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Anime Catalog - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <style>
+    .alphabet-nav {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.4rem;
+      margin-bottom: 2.5rem;
+      padding: 1rem;
+      background: linear-gradient(135deg, rgba(23, 23, 23, 0.6) 0%, rgba(10, 10, 10, 0.8) 100%);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .alphabet-btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 0.4rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.75rem;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      cursor: pointer;
+    }
+
+    .alphabet-btn:hover {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .catalog-group {
+      margin-bottom: 2rem;
+      scroll-margin-top: 100px;
+      background: rgba(15, 15, 15, 0.5);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1.5rem;
+      backdrop-filter: var(--blur-sm);
+      -webkit-backdrop-filter: var(--blur-sm);
+    }
+
+    .catalog-letter {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 1.25rem;
+      display: inline-block;
+      padding-bottom: 0.2rem;
+      border-bottom: 3px solid var(--accent);
+      text-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+
+    .catalog-items {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.25rem 1.5rem;
+    }
+
+    .catalog-item {
+      padding: 0.4rem 0.6rem;
+      border-radius: 6px;
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-weight: 400;
+      font-size: 0.85rem;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+    }
+
+    .ongoing-badge {
+      color: #22c55e;
+      font-weight: 600;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.35rem;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 4px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .catalog-item:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.04);
+      transform: translateX(4px);
+    }
+
+    .catalog-item:hover .ongoing-badge {
+      background: rgba(34, 197, 94, 0.2);
+    }
+
+    .catalog-item::before {
+      content: '■';
+      color: var(--accent);
+      font-size: 0.45rem;
+      opacity: 0.4;
+      margin-top: 0.35rem;
+      transition: all 0.3s;
+    }
+
+    .catalog-item:hover::before {
+      opacity: 1;
+      transform: scale(1.3) rotate(45deg);
+      text-shadow: 0 0 5px var(--accent);
+    }
+
+    @media (max-width: 768px) {
+      .catalog-items {
+        grid-template-columns: 1fr;
+      }
+
+      .alphabet-nav {
+        gap: 0.35rem;
+        padding: 0.75rem;
+      }
+
+      .alphabet-btn {
+        padding: 0 0.3rem;
+        min-width: 24px;
+        height: 24px;
+        font-size: 0.7rem;
+      }
+
+      .catalog-group {
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Anime List</h2>
+      </div>
+      <div class="alphabet-nav" id="alphabet-nav"></div>
+      <div id="catalog-list"></div>
+    </section>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    async function loadCatalog() {
+      const catalogList = document.getElementById('catalog-list');
+      const alphabetNav = document.getElementById('alphabet-nav');
+      catalogList.innerHTML = '<div class="skeleton" style="height: 200px;"></div>';
+
+      try {
+        const response = await api.fetchAll();
+        console.log('Catalog data received:', response);
+        catalogList.innerHTML = '';
+
+        if (response.data && response.data.list && Array.isArray(response.data.list)) {
+          const groups = response.data.list;
+
+          if (groups.length === 0) {
+            catalogList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No anime found.</p>';
+            return;
+          }
+
+          // Create alphabet navigation
+          const letters = groups.map(g => g.startWith || '#');
+          letters.forEach(letter => {
+            const btn = document.createElement('a');
+            btn.className = 'alphabet-btn';
+            btn.textContent = letter;
+            btn.href = `/anime-list/#${letter}`;
+            btn.onclick = (e) => {
+              e.preventDefault();
+              const target = document.getElementById(`letter-${letter}`);
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.history.pushState({}, '', `/anime-list/#${letter}`);
+              }
+            };
+            alphabetNav.appendChild(btn);
+          });
+
+          // Create groups
+          groups.forEach(group => {
+            if (!group.animeList || group.animeList.length === 0) return;
+
+            const groupDiv = document.createElement('div');
+            groupDiv.className = 'catalog-group fade-in';
+            groupDiv.id = `letter-${group.startWith || '#'}`;
+
+            const letter = document.createElement('div');
+            letter.className = 'catalog-letter';
+            letter.textContent = group.startWith || '#';
+            groupDiv.appendChild(letter);
+
+            const itemsDiv = document.createElement('div');
+            itemsDiv.className = 'catalog-items';
+
+            group.animeList.forEach(anime => {
+              const item = document.createElement('a');
+              item.className = 'catalog-item';
+              item.href = `/anime/${anime.animeId || anime.slug}`;
+
+              let title = anime.title || 'Unknown';
+
+              // Replace "On-Going" or "Ongoing" with colored span
+              title = title.replace(/(On-Going|Ongoing)/gi, '<span class="ongoing-badge">$1</span>');
+
+              item.innerHTML = title;
+              itemsDiv.appendChild(item);
+            });
+
+            groupDiv.appendChild(itemsDiv);
+            catalogList.appendChild(groupDiv);
+          });
+
+          console.log(`Displayed ${groups.length} groups`);
+
+          // Scroll to letter from URL hash
+          if (window.location.hash) {
+            const letter = window.location.hash.substring(1);
+            setTimeout(() => {
+              const target = document.getElementById(`letter-${letter}`);
+              if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }
+            }, 100);
+          }
+        } else {
+          catalogList.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No anime found.</p>';
+        }
+
+      } catch (error) {
+        console.error('Error loading catalog:', error);
+        catalogList.innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">😔</div>
+            <p style="color: var(--text-secondary);">Failed to load anime catalog.</p>
+          </div>
+        `;
+      }
+    }
+
+    loadCatalog();
+  </script>
+</body>
+
+</html>

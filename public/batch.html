@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Batch Download - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <link rel="stylesheet" href="/style/detail.css">
+  <style>
+    .detail-container {
+      display: grid;
+      grid-template-columns: 220px 1fr;
+      gap: 2rem;
+      margin-bottom: 3rem;
+    }
+
+    .detail-poster {
+      position: sticky;
+      top: 100px;
+      height: fit-content;
+    }
+
+    .detail-poster img {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-lg);
+      transition: transform 0.3s;
+    }
+
+    .detail-poster img:hover {
+      transform: scale(1.02);
+    }
+
+    .detail-info h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+      color: var(--text-primary);
+    }
+
+    .detail-japanese {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.25rem;
+      font-style: italic;
+    }
+
+    .detail-meta {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .meta-badge {
+      padding: 0.5rem 1rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--text-secondary);
+    }
+
+    .meta-badge:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--glass-border-hover);
+      transform: translateY(-2px);
+      color: var(--text-primary);
+    }
+
+    .detail-synopsis {
+      line-height: 1.8;
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+      font-size: 0.95rem;
+      white-space: pre-line;
+    }
+
+    .genres {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .genre-tag {
+      padding: 0.5rem 1.25rem;
+      background: var(--accent);
+      border-radius: 10px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: white;
+      font-weight: 600;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .genre-tag:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+    }
+
+    .batch-layout {
+      display: grid;
+      grid-template-columns: 1fr 320px;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    .batch-main {
+      min-width: 0;
+    }
+
+    .batch-sidebar {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      backdrop-filter: var(--blur-md);
+      -webkit-backdrop-filter: var(--blur-md);
+      box-shadow: var(--shadow-lg);
+      position: sticky;
+      top: 90px;
+      max-height: calc(100vh - 110px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .batch-sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid var(--glass-border);
+      font-weight: 700;
+      font-size: 1rem;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .batch-sidebar-content {
+      overflow-y: auto;
+      flex: 1;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .batch-sidebar-content::-webkit-scrollbar-thumb {
+      background: var(--glass-border-hover);
+      border-radius: 4px;
+    }
+
+    .sidebar-anime-card {
+      display: flex;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+
+    .sidebar-anime-card:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--accent);
+      transform: translateX(4px);
+    }
+
+    .sidebar-anime-poster {
+      width: 60px;
+      height: 85px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+    }
+
+    .sidebar-anime-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .sidebar-anime-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+
+    .sidebar-anime-meta {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    @media (max-width: 1024px) {
+      .batch-layout {
+        grid-template-columns: 1fr 260px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .batch-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .batch-sidebar {
+        position: relative;
+        top: 0;
+        max-height: 400px;
+      }
+    }
+
+    .dl-wrapper {
+      background: #1e1e1e;
+      border-radius: 8px;
+      padding: 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      max-width: 900px;
+    }
+
+    .dl-main-title {
+      background: #c5c5c5;
+      color: #111;
+      text-align: center;
+      padding: 0.6rem;
+      font-weight: 700;
+      font-size: 1.05rem;
+      border-radius: 4px;
+      margin-bottom: 0.5rem;
+    }
+
+    .dl-sub-title {
+      background: #6c75ff;
+      color: #fff;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border-radius: 4px;
+      margin-bottom: 1rem;
+    }
+
+    .dl-table {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      border: 3px solid #1e1e1e;
+    }
+
+    .dl-row {
+      display: grid;
+      grid-template-columns: 110px 1fr 110px;
+      border-bottom: 2px solid #1e1e1e;
+    }
+
+    .dl-row:last-child {
+      border-bottom: none;
+    }
+
+    .dl-quality {
+      background: #3a3a3a;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      border-right: 2px solid #111;
+    }
+
+    .dl-links {
+      background: #ffffff;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .dl-size {
+      background: #3a3a3a;
+      color: #fff;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-left: 2px solid #111;
+    }
+
+    .dl-link-item {
+      color: #2a75d3;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .dl-link-item:hover {
+      text-decoration: underline;
+      color: #1e3a8a;
+    }
+
+    .dl-separator {
+      color: #94a3b8;
+      font-weight: 300;
+      user-select: none;
+      font-size: 0.85rem;
+      margin: 0 0.15rem;
+    }
+
+    .back-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 600;
+      transition: all 0.3s;
+      margin-bottom: 2rem;
+    }
+
+    .back-button:hover {
+      background: var(--glass-bg-hover);
+      border-color: var(--accent);
+      transform: translateX(-4px);
+    }
+
+    @media (max-width: 768px) {
+      .detail-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .detail-poster {
+        position: relative;
+        top: 0;
+        max-width: 280px;
+        margin: 0 auto;
+      }
+
+      .detail-info h1 {
+        font-size: 1.75rem;
+      }
+
+      .download-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <a href="#" class="back-button" id="back-button">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+        stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"></line>
+        <polyline points="12 19 5 12 12 5"></polyline>
+      </svg>
+      Back to Anime
+    </a>
+
+    <div class="detail-container" id="detail-content">
+      <div class="skeleton" style="height: 400px;"></div>
+      <div class="skeleton" style="height: 400px;"></div>
+    </div>
+
+    <div class="batch-layout">
+      <div class="batch-main">
+        <section class="section">
+          <div class="section-header" style="max-width: 900px;">
+            <h2 class="section-title" style="display: flex; align-items: center; gap: 0.75rem;">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Batch Download
+            </h2>
+          </div>
+          <div id="batch-content">
+            <div class="skeleton" style="height: 200px; margin-bottom: 2rem;"></div>
+            <div class="skeleton" style="height: 200px; margin-bottom: 2rem;"></div>
+          </div>
+          
+          <!-- Samehadaku Manual Input -->
+          <div style="max-width: 900px; margin-top: 2rem; padding: 1.5rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 16px; backdrop-filter: blur(20px);">
+            <h3 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              Load Samehadaku Mirror
+            </h3>
+            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+              Paste Samehadaku anime slug or full URL to load alternative download links
+            </p>
+            <div style="display: flex; gap: 0.75rem;">
+              <input 
+                type="text" 
+                id="samehadaku-slug-input" 
+                placeholder="Paste slug or URL (e.g., maou-gakuin-no-futekigousha-batch)"
+                style="flex: 1; padding: 0.75rem 1rem; background: var(--glass-bg); border: 1px solid var(--glass-border); border-radius: 10px; color: var(--text-primary); font-size: 0.9rem; outline: none; transition: all 0.3s;"
+                onfocus="this.style.borderColor='var(--accent)'; this.style.boxShadow='0 0 0 3px var(--accent-light)'"
+                onblur="this.style.borderColor='var(--glass-border)'; this.style.boxShadow='none'"
+              >
+              <button 
+                id="load-samehadaku-btn"
+                style="padding: 0.75rem 1.5rem; background: var(--accent); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; transition: all 0.3s; white-space: nowrap;"
+                onmouseover="this.style.background='var(--accent-hover)'; this.style.transform='translateY(-2px)'"
+                onmouseout="this.style.background='var(--accent)'; this.style.transform='translateY(0)'"
+              >
+                Load Mirror
+              </button>
+            </div>
+            <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: 0.75rem;">
+              💡 Tip: Visit Samehadaku website and copy the anime slug from the URL
+            </p>
+          </div>
+        </section>
+      </div>
+
+      <aside class="batch-sidebar">
+        <div class="batch-sidebar-header">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color: var(--accent);">
+            <polygon
+              points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2">
+            </polygon>
+          </svg>
+          Recommended
+        </div>
+        <div class="batch-sidebar-content" id="recommended-list">
+          <div class="skeleton" style="height: 85px;"></div>
+          <div class="skeleton" style="height: 85px;"></div>
+          <div class="skeleton" style="height: 85px;"></div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    async function loadBatch() {
+      const slug = window.location.pathname.split('/').pop();
+      const batchContent = document.getElementById('batch-content');
+      const detailContent = document.getElementById('detail-content');
+      const backButton = document.getElementById('back-button');
+
+      console.log('Loading batch for slug:', slug);
+
+      try {
+        const response = await api.fetchBatch(slug);
+        console.log('Batch response:', response);
+
+        const data = response.data || response;
+        const title = data.title || 'Batch Download';
+        const animeId = data.animeId || '';
+        const poster = data.poster || 'https://via.placeholder.com/300x400';
+        const japanese = data.japanese || '';
+        const score = data.score || '';
+        const type = data.type || '';
+        const episodes = data.episodes || '';
+        const duration = data.duration || '';
+        const aired = data.aired || '';
+        const studios = data.studios || '';
+        const producers = data.producers || '';
+        const credit = data.credit || '';
+        const formats = data.downloadUrl?.formats || [];
+
+        // Set back button link
+        if (animeId) {
+          backButton.href = `/anime/${animeId}`;
+        }
+
+        // Fetch anime detail for synopsis
+        let synopsis = '';
+        let recommendedAnime = [];
+        if (animeId) {
+          try {
+            const animeResponse = await api.fetchAnimeDetail(animeId);
+            const animeData = animeResponse.data || animeResponse;
+            if (animeData.synopsis && animeData.synopsis.paragraphs) {
+              synopsis = animeData.synopsis.paragraphs.join('\n\n');
+            } else if (animeData.synopsis) {
+              synopsis = animeData.synopsis;
+            }
+            recommendedAnime = animeData.recommendedAnimeList || [];
+          } catch (err) {
+            console.log('Could not fetch synopsis:', err.message);
+          }
+        }
+
+        // Extract genres
+        let genresHTML = '';
+        const genres = data.genreList || [];
+        if (genres.length > 0) {
+          genresHTML = `
+            <div class="genres">
+              ${genres.map(genre => {
+            const genreName = genre.title || genre.name || '';
+            const genreSlug = genre.genreId || genre.slug || genreName.toLowerCase();
+            return `<a href="/genres?genre=${genreSlug}" class="genre-tag">${genreName}</a>`;
+          }).join('')}
+            </div>
+          `;
+        }
+
+        // Display anime info
+        detailContent.innerHTML = `
+          <div class="detail-poster fade-in">
+            <img src="${poster}" 
+                 alt="${title}"
+                 onerror="this.src='https://via.placeholder.com/220x320'">
+          </div>
+          <div class="detail-info fade-in">
+            <h1>${title}</h1>
+            ${japanese ? `<p class="detail-japanese">${japanese}</p>` : ''}
+            <div class="detail-meta">
+              ${type ? `<span class="meta-badge">🎬 ${type}</span>` : ''}
+              ${score ? `<span class="meta-badge">⭐ ${score}</span>` : ''}
+              ${episodes ? `<span class="meta-badge">📺 ${episodes} Episodes</span>` : ''}
+              ${duration ? `<span class="meta-badge">⏱️ ${duration}</span>` : ''}
+              ${aired ? `<span class="meta-badge">📅 ${aired}</span>` : ''}
+              ${studios ? `<span class="meta-badge">🎨 ${studios}</span>` : ''}
+            </div>
+            ${synopsis ? `<p class="detail-synopsis">${synopsis}</p>` : ''}
+            ${producers ? `<p class="detail-synopsis" style="margin-bottom: 1rem;"><strong>Producers:</strong> ${producers}</p>` : ''}
+            ${credit ? `<p class="detail-synopsis" style="margin-bottom: 1rem;"><strong>Credit:</strong> ${credit}</p>` : ''}
+            ${genresHTML}
+          </div>
+        `;
+
+        if (formats.length > 0) {
+          batchContent.innerHTML = '';
+
+          // Wrap entire section
+          const wrapper = document.createElement('div');
+          wrapper.className = 'dl-wrapper';
+
+          const batchName = title || 'Batch Download';
+
+          // Main Header (Light Grey)
+          const mainHeader = document.createElement('div');
+          mainHeader.className = 'dl-main-title';
+          mainHeader.textContent = `Link Download ${batchName} Lengkap`;
+          wrapper.appendChild(mainHeader);
+
+          // Sub Header (Purple)
+          const subHeader = document.createElement('div');
+          subHeader.className = 'dl-sub-title';
+          subHeader.textContent = `${batchName} - [AnimeStream]`;
+          wrapper.appendChild(subHeader);
+
+          // Create single table for all qualities
+          const tableContainer = document.createElement('div');
+          tableContainer.className = 'dl-table';
+
+          formats.forEach(format => {
+            format.qualities?.forEach(quality => {
+              const row = document.createElement('div');
+              row.className = 'dl-row';
+
+              const qualityTitle = quality.title || '';
+              const qualitySize = quality.size || '';
+              const urls = quality.urls || [];
+
+              let linksHTML = urls.map((url, i) => {
+                const link = `<a href="${url.url}" target="_blank" rel="noopener noreferrer" class="dl-link-item">${url.title}</a>`;
+                const sep = i < urls.length - 1 ? '<span class="dl-separator">|</span>' : '';
+                return link + sep;
+              }).join('');
+
+              row.innerHTML = `
+                <div class="dl-quality">${qualityTitle}</div>
+                <div class="dl-links">${linksHTML}</div>
+                <div class="dl-size">${qualitySize}</div>
+              `;
+
+              tableContainer.appendChild(row);
+            });
+          });
+
+          wrapper.appendChild(tableContainer);
+          batchContent.appendChild(wrapper);
+        } else {
+          batchContent.innerHTML = `
+            <div style="text-align: center; padding: 3rem;">
+              <div style="font-size: 3rem; margin-bottom: 1rem;">📦</div>
+              <p style="color: var(--text-secondary); font-size: 1.1rem;">No batch downloads available.</p>
+            </div>
+          `;
+        }
+
+        // Load recommended anime
+        const recommendedList = document.getElementById('recommended-list');
+        if (recommendedAnime.length > 0) {
+          recommendedList.innerHTML = '';
+          recommendedAnime.slice(0, 10).forEach(anime => {
+            const card = document.createElement('a');
+            card.className = 'sidebar-anime-card';
+            card.href = `/anime/${anime.animeId || anime.slug}`;
+
+            const poster = anime.poster || 'https://via.placeholder.com/60x85';
+            const title = anime.title || 'Unknown';
+            const score = anime.score || '';
+            const type = anime.type || '';
+
+            card.innerHTML = `
+              <img src="${poster}" alt="${title}" class="sidebar-anime-poster" onerror="this.src='https://via.placeholder.com/60x85'">
+              <div class="sidebar-anime-info">
+                <div class="sidebar-anime-title">${title}</div>
+                <div class="sidebar-anime-meta">
+                  ${score ? `<span>⭐ ${score}</span>` : ''}
+                  ${type ? `<span>📺 ${type}</span>` : ''}
+                </div>
+              </div>
+            `;
+            recommendedList.appendChild(card);
+          });
+        } else {
+          recommendedList.innerHTML = `
+            <p style="color: var(--text-secondary); text-align: center; padding: 1rem;">No recommendations available.</p>
+          `;
+        }
+
+        // Load Samehadaku batch downloads
+        loadSamehadakuBatch(slug, title);
+        
+        // Setup manual Samehadaku load button
+        const loadSamehadakuBtn = document.getElementById('load-samehadaku-btn');
+        const samehadakuSlugInput = document.getElementById('samehadaku-slug-input');
+        
+        loadSamehadakuBtn.onclick = async () => {
+          let customSlug = samehadakuSlugInput.value.trim();
+          if (!customSlug) {
+            alert('Please enter a Samehadaku slug');
+            return;
+          }
+          
+          // Clean up the slug
+          // Remove full URL if pasted
+          if (customSlug.includes('http')) {
+            const urlParts = customSlug.split('/');
+            customSlug = urlParts[urlParts.length - 1] || urlParts[urlParts.length - 2];
+          }
+          
+          // Remove /batch/ prefix if exists
+          customSlug = customSlug.replace(/^\/?(batch\/)?/, '');
+          
+          // Remove /anime/samehadaku/ prefix if exists
+          customSlug = customSlug.replace(/^\/?(anime\/)?samehadaku\//, '');
+          
+          // Ensure slug ends with / for Samehadaku batch
+          if (!customSlug.endsWith('/')) {
+            customSlug += '/';
+          }
+          
+          console.log('Cleaned slug:', customSlug);
+          
+          loadSamehadakuBtn.textContent = 'Loading...';
+          loadSamehadakuBtn.disabled = true;
+          
+          await loadSamehadakuBatch(customSlug, title);
+          
+          loadSamehadakuBtn.textContent = 'Load Mirror';
+          loadSamehadakuBtn.disabled = false;
+        };
+
+      } catch (error) {
+        console.error('Error loading batch:', error);
+        batchContent.innerHTML = `
+          <div style="text-align: center; padding: 3rem;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">😔</div>
+            <p style="color: var(--text-secondary); font-size: 1.1rem; margin-bottom: 1rem;">Failed to load batch downloads.</p>
+            <p style="color: var(--text-secondary); font-size: 0.9rem;">${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadSamehadakuBatch(slug, animeTitle) {
+      // Remove existing Samehadaku section if any
+      const existingSamehadaku = document.querySelector('.samehadaku-section');
+      if (existingSamehadaku) {
+        existingSamehadaku.remove();
+      }
+      
+      try {
+        const response = await api.fetchSamehadakuBatch(slug);
+        console.log('Samehadaku response:', response);
+
+        const data = response.data;
+        if (!data || !data.downloadUrl || !data.downloadUrl.formats || data.downloadUrl.formats.length === 0) {
+          console.log('No Samehadaku batch available for slug:', slug);
+          
+          // Show error message
+          const batchContent = document.getElementById('batch-content');
+          const errorMsg = document.createElement('div');
+          errorMsg.className = 'samehadaku-section';
+          errorMsg.style.cssText = 'max-width: 900px; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 12px; color: #ef4444; margin-top: 1rem;';
+          errorMsg.innerHTML = `
+            <p style="margin: 0; font-size: 0.9rem;">
+              ⚠️ No Samehadaku batch found for slug: <code style="background: rgba(0,0,0,0.2); padding: 0.2rem 0.5rem; border-radius: 4px;">${slug}</code>
+            </p>
+          `;
+          batchContent.appendChild(errorMsg);
+          return;
+        }
+
+        const batchContent = document.getElementById('batch-content');
+        const formats = data.downloadUrl.formats;
+        const samehadakuTitle = data.title || '';
+
+        // Check if titles match (simple similarity check)
+        const isSameAnime = checkTitleSimilarity(animeTitle, samehadakuTitle);
+
+        // Create Samehadaku section
+        const wrapper = document.createElement('div');
+        wrapper.className = 'dl-wrapper samehadaku-section';
+        wrapper.style.marginTop = '2rem';
+
+        // Main Header - use Samehadaku title
+        const mainHeader = document.createElement('div');
+        mainHeader.className = 'dl-main-title';
+        mainHeader.textContent = `Link Download ${samehadakuTitle} Lengkap (Samehadaku)`;
+        wrapper.appendChild(mainHeader);
+
+        // Sub Header - tambah info format
+        const subHeader = document.createElement('div');
+        subHeader.className = 'dl-sub-title';
+        subHeader.style.background = '#ff6b6b';
+        subHeader.textContent = `${samehadakuTitle} - [Samehadaku Mirror]`;
+        wrapper.appendChild(subHeader);
+
+        // Group by format (MKV, MP4, etc)
+        const formatGroups = {};
+        formats.forEach(format => {
+          const formatTitle = format.title || 'Unknown Format';
+          if (!formatGroups[formatTitle]) {
+            formatGroups[formatTitle] = [];
+          }
+          format.qualities?.forEach(quality => {
+            formatGroups[formatTitle].push(quality);
+          });
+        });
+
+        // Render each format group
+        Object.keys(formatGroups).forEach(formatTitle => {
+          // Format header with color coding
+          const formatHeader = document.createElement('div');
+          formatHeader.style.cssText = 'background: #2d2d2d; color: white; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.95rem; margin-top: 1rem; border-radius: 6px;';
+          
+          // Detect format type and add color
+          let formatColor = '#6c75ff';
+          if (formatTitle.includes('MKV')) {
+            formatColor = '#10b981'; // Green for MKV
+            formatHeader.innerHTML = `<span style="background: ${formatColor}; padding: 0.25rem 0.75rem; border-radius: 4px; margin-right: 0.5rem;">MKV</span>${formatTitle}`;
+          } else if (formatTitle.includes('MP4')) {
+            formatColor = '#3b82f6'; // Blue for MP4
+            formatHeader.innerHTML = `<span style="background: ${formatColor}; padding: 0.25rem 0.75rem; border-radius: 4px; margin-right: 0.5rem;">MP4</span>${formatTitle}`;
+          } else if (formatTitle.includes('x265')) {
+            formatColor = '#8b5cf6'; // Purple for x265
+            formatHeader.innerHTML = `<span style="background: ${formatColor}; padding: 0.25rem 0.75rem; border-radius: 4px; margin-right: 0.5rem;">x265</span>${formatTitle}`;
+          } else {
+            formatHeader.textContent = formatTitle;
+          }
+          
+          wrapper.appendChild(formatHeader);
+
+          // Create table for this format (2 columns: quality + links, no size)
+          const tableContainer = document.createElement('div');
+          tableContainer.className = 'dl-table';
+          tableContainer.style.cssText = 'display: flex; flex-direction: column; border: 3px solid #1e1e1e;';
+
+          formatGroups[formatTitle].forEach(quality => {
+            const row = document.createElement('div');
+            row.style.cssText = 'display: grid; grid-template-columns: 110px 1fr; border-bottom: 2px solid #1e1e1e;';
+
+            const qualityTitle = quality.title || '';
+            const urls = quality.urls || [];
+
+            let linksHTML = urls.map((url, i) => {
+              const link = `<a href="${url.url}" target="_blank" rel="noopener noreferrer" class="dl-link-item">${url.title}</a>`;
+              const sep = i < urls.length - 1 ? '<span class="dl-separator">|</span>' : '';
+              return link + sep;
+            }).join('');
+
+            row.innerHTML = `
+              <div class="dl-quality">${qualityTitle}</div>
+              <div class="dl-links">${linksHTML}</div>
+            `;
+
+            tableContainer.appendChild(row);
+          });
+
+          wrapper.appendChild(tableContainer);
+        });
+        batchContent.appendChild(wrapper);
+        
+        // Show modal/toast notification
+        if (!isSameAnime) {
+          showNotificationModal('warning', 'Different Anime Detected!', `
+            <div style="text-align: left; margin-top: 1rem;">
+              <p style="margin-bottom: 0.75rem;"><strong>Current page:</strong></p>
+              <p style="background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 6px; margin-bottom: 1rem;">${animeTitle}</p>
+              <p style="margin-bottom: 0.75rem;"><strong>Loaded batch:</strong></p>
+              <p style="background: rgba(0,0,0,0.1); padding: 0.5rem; border-radius: 6px;">${samehadakuTitle}</p>
+            </div>
+          `);
+        } else {
+          showNotificationModal('success', 'Success!', 'Samehadaku mirror loaded successfully!');
+        }
+
+      } catch (error) {
+        console.log('Samehadaku batch error:', error.message);
+        showNotificationModal('error', 'Failed to Load', `Failed to load Samehadaku batch: ${error.message}`);
+      }
+    }
+
+    // Show notification modal/toast
+    function showNotificationModal(type, title, message) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById('notification-modal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+
+      // Create modal overlay
+      const overlay = document.createElement('div');
+      overlay.id = 'notification-modal';
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease-out;
+      `;
+
+      // Determine colors based on type
+      let iconColor, borderColor, bgColor, icon;
+      if (type === 'warning') {
+        iconColor = '#fbbf24';
+        borderColor = 'rgba(251, 191, 36, 0.5)';
+        bgColor = 'rgba(251, 191, 36, 0.1)';
+        icon = '⚠️';
+      } else if (type === 'success') {
+        iconColor = '#22c55e';
+        borderColor = 'rgba(34, 197, 94, 0.5)';
+        bgColor = 'rgba(34, 197, 94, 0.1)';
+        icon = '✓';
+      } else {
+        iconColor = '#ef4444';
+        borderColor = 'rgba(239, 68, 68, 0.5)';
+        bgColor = 'rgba(239, 68, 68, 0.1)';
+        icon = '✕';
+      }
+
+      // Create modal content
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: rgba(10, 10, 10, 0.95);
+        backdrop-filter: blur(20px);
+        border: 2px solid ${borderColor};
+        border-radius: 20px;
+        padding: 2rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        animation: slideUp 0.3s ease-out;
+        position: relative;
+      `;
+
+      modal.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem; color: ${iconColor};">${icon}</div>
+          <h3 style="font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 1rem;">${title}</h3>
+          <div style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.6;">
+            ${message}
+          </div>
+          <button id="modal-close-btn" style="
+            margin-top: 1.5rem;
+            padding: 0.75rem 2rem;
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+          ">
+            Got it
+          </button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      // Add animations
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { 
+            opacity: 0;
+            transform: translateY(30px) scale(0.95);
+          }
+          to { 
+            opacity: 1;
+            transform: translateY(0) scale(1);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+
+      // Close modal handlers
+      const closeModal = () => {
+        overlay.style.animation = 'fadeOut 0.3s ease-out';
+        modal.style.animation = 'slideDown 0.3s ease-out';
+        setTimeout(() => overlay.remove(), 300);
+      };
+
+      document.getElementById('modal-close-btn').onclick = closeModal;
+      overlay.onclick = (e) => {
+        if (e.target === overlay) closeModal();
+      };
+
+      // Auto close after 5 seconds for success
+      if (type === 'success') {
+        setTimeout(closeModal, 5000);
+      }
+    }
+
+    // Helper function to check title similarity
+    function checkTitleSimilarity(title1, title2) {
+      if (!title1 || !title2) return false;
+      
+      // Normalize titles: lowercase, remove special chars, remove common words
+      const normalize = (str) => {
+        return str.toLowerCase()
+          .replace(/\[batch\]/gi, '')
+          .replace(/subtitle indonesia/gi, '')
+          .replace(/sub indo/gi, '')
+          .replace(/season \d+/gi, '')
+          .replace(/s\d+/gi, '')
+          .replace(/[^a-z0-9\s]/g, '')
+          .trim()
+          .split(/\s+/)
+          .filter(word => word.length > 2) // Remove short words
+          .slice(0, 5); // Take first 5 significant words
+      };
+      
+      const words1 = normalize(title1);
+      const words2 = normalize(title2);
+      
+      // Check if at least 60% of words match
+      const matchCount = words1.filter(word => 
+        words2.some(w => w.includes(word) || word.includes(w))
+      ).length;
+      
+      const similarity = matchCount / Math.max(words1.length, words2.length);
+      
+      console.log('Title comparison:', {
+        title1: words1.join(' '),
+        title2: words2.join(' '),
+        similarity: (similarity * 100).toFixed(0) + '%',
+        isSame: similarity >= 0.6
+      });
+      
+      return similarity >= 0.6; // 60% similarity threshold
+    }
+
+    loadBatch();
+  </script>
+</body>
+
+</html>

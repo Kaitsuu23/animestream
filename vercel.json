@@ -1,0 +1,82 @@
+{
+  "version": 2,
+  "buildCommand": "echo 'Static site, no build needed'",
+  "outputDirectory": "public",
+  "routes": [
+    {
+      "src": "/service-worker.js",
+      "headers": {
+        "Cache-Control": "no-cache",
+        "Service-Worker-Allowed": "/"
+      },
+      "dest": "/service-worker.js"
+    },
+    {
+      "src": "/manifest.json",
+      "headers": {
+        "Content-Type": "application/manifest+json"
+      },
+      "dest": "/manifest.json"
+    },
+    {
+      "src": "/",
+      "dest": "/index.html"
+    },
+    {
+      "src": "/anime-list",
+      "dest": "/catalog.html"
+    },
+    {
+      "src": "/ongoing-anime",
+      "dest": "/ongoing-anime.html"
+    },
+    {
+      "src": "/ongoing-anime/page/(.*)",
+      "dest": "/ongoing-anime.html"
+    },
+    {
+      "src": "/complete-anime",
+      "dest": "/complete-anime.html"
+    },
+    {
+      "src": "/complete-anime/page/(.*)",
+      "dest": "/complete-anime.html"
+    },
+    {
+      "src": "/detail/(.*)",
+      "dest": "/detail.html"
+    },
+    {
+      "src": "/anime/(.*)",
+      "dest": "/detail.html"
+    },
+    {
+      "src": "/batch/(.*)",
+      "dest": "/batch.html"
+    },
+    {
+      "src": "/episode/(.*)",
+      "dest": "/episode.html"
+    },
+    {
+      "src": "/genre-list",
+      "dest": "/genre-list.html"
+    },
+    {
+      "src": "/genres/(.*)/page/(.*)",
+      "dest": "/genre-list.html"
+    },
+    {
+      "src": "/genres/(.*)",
+      "dest": "/genre-list.html"
+    },
+    {
+      "src": "/schedule",
+      "dest": "/schedule.html"
+    },
+    {
+      "src": "/status",
+      "dest": "/status.html"
+    }
+  ]
+}

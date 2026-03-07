@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>API Status - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="section">
+      <h1 style="font-size: 2rem; margin-bottom: 2rem;">API Status Check</h1>
+
+      <div id="status-container" style="display: grid; gap: 1rem;">
+        <div class="skeleton" style="height: 100px;"></div>
+        <div class="skeleton" style="height: 100px;"></div>
+        <div class="skeleton" style="height: 100px;"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    async function checkStatus() {
+      const container = document.getElementById('status-container');
+      container.innerHTML = '';
+
+      const endpoints = [
+        { name: 'Home', url: '/api/home' },
+        { name: 'Ongoing Anime', url: '/api/ongoing' },
+        { name: 'Genres', url: '/api/genres' }
+      ];
+
+      for (const endpoint of endpoints) {
+        const card = document.createElement('div');
+        card.style.cssText = `
+          background: var(--glass-bg);
+          border: 1px solid var(--glass-border);
+          border-radius: 20px;
+          padding: 1.5rem;
+          backdrop-filter: blur(20px);
+        `;
+
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="font-size: 1.25rem; margin-bottom: 0.5rem;">${endpoint.name}</h3>
+              <p style="color: var(--text-secondary); font-size: 0.9rem;">${endpoint.url}</p>
+            </div>
+            <div id="status-${endpoint.name}" style="font-size: 1.5rem;">⏳</div>
+          </div>
+          <div id="time-${endpoint.name}" style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--text-secondary);"></div>
+        `;
+
+        container.appendChild(card);
+
+        // Check endpoint
+        const startTime = Date.now();
+        try {
+          const response = await fetch(endpoint.url);
+          const endTime = Date.now();
+          const duration = endTime - startTime;
+
+          const statusEl = document.getElementById(`status-${endpoint.name}`);
+          const timeEl = document.getElementById(`time-${endpoint.name}`);
+
+          if (response.ok) {
+            statusEl.textContent = '✅';
+            statusEl.style.color = '#10b981';
+            timeEl.textContent = `Response time: ${duration}ms`;
+            timeEl.style.color = '#10b981';
+          } else {
+            statusEl.textContent = '❌';
+            statusEl.style.color = '#ef4444';
+            timeEl.textContent = `Error: ${response.status} ${response.statusText}`;
+            timeEl.style.color = '#ef4444';
+          }
+        } catch (error) {
+          const statusEl = document.getElementById(`status-${endpoint.name}`);
+          const timeEl = document.getElementById(`time-${endpoint.name}`);
+          statusEl.textContent = '❌';
+          statusEl.style.color = '#ef4444';
+          timeEl.textContent = `Error: ${error.message}`;
+          timeEl.style.color = '#ef4444';
+        }
+      }
+
+      // Add refresh button
+      const refreshBtn = document.createElement('button');
+      refreshBtn.textContent = 'Refresh Status';
+      refreshBtn.className = 'btn btn-primary';
+      refreshBtn.style.marginTop = '2rem';
+      refreshBtn.onclick = () => {
+        container.innerHTML = '<div class="skeleton" style="height: 100px;"></div><div class="skeleton" style="height: 100px;"></div><div class="skeleton" style="height: 100px;"></div>';
+        checkStatus();
+      };
+      container.appendChild(refreshBtn);
+    }
+
+    checkStatus();
+  </script>
+</body>
+
+</html>

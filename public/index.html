@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Stream your favorite anime online - Watch latest and ongoing anime series">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AnimeStream">
+  
+  <title>AnimeStream - Watch Anime Online</title>
+  
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json">
+  
+  <!-- Icons -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+  
+  <link rel="stylesheet" href="/style/style.css">
+  <script src="/js/config.js"></script>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="hero" id="hero">
+      <div class="hero-slides">
+        <!-- Slides will be dynamically added here -->
+      </div>
+      <div class="hero-nav">
+        <button class="hero-nav-btn hero-prev">‹</button>
+        <button class="hero-nav-btn hero-next">›</button>
+      </div>
+      <div class="hero-dots"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Ongoing Anime</h2>
+        <a href="/ongoing-anime" class="view-all">View All →</a>
+      </div>
+      <div class="anime-grid" id="latest-grid"></div>
+    </section>
+
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Completed Anime</h2>
+        <a href="/complete-anime" class="view-all">View All →</a>
+      </div>
+      <div class="anime-grid" id="ongoing-grid"></div>
+    </section>
+  </div>
+
+  <script src="/sw-register.js"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    let currentSlide = 0;
+    let slideInterval;
+    let heroAnimes = [];
+
+    function createHeroSlide(anime, index) {
+      const slide = document.createElement('div');
+      slide.className = 'hero-slide';
+      
+      const slug = anime.animeId || anime.slug;
+      const poster = anime.poster || 'https://via.placeholder.com/1200x600';
+      const title = anime.title || 'Featured Anime';
+      const description = `${anime.episodes || ''} Episodes • ${anime.releaseDay || anime.latestReleaseDate || anime.lastReleaseDate || ''}`;
+      
+      slide.innerHTML = `
+        <div class="hero-bg" style="background-image: url(${poster})"></div>
+        <div class="hero-content">
+          <h1 class="hero-title">${title}</h1>
+          <p class="hero-description">${description}</p>
+          <div class="hero-buttons">
+            <a href="/detail/${slug}" class="btn btn-primary">Watch Now</a>
+            <a href="/detail/${slug}" class="btn btn-secondary">More Info</a>
+          </div>
+        </div>
+      `;
+      
+      return slide;
+    }
+
+    function updateSlide(index) {
+      const slidesContainer = document.querySelector('.hero-slides');
+      const dots = document.querySelectorAll('.hero-dot');
+      
+      currentSlide = index;
+      slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+      
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === currentSlide);
+      });
+    }
+
+    function nextSlide() {
+      const nextIndex = (currentSlide + 1) % heroAnimes.length;
+      updateSlide(nextIndex);
+    }
+
+    function prevSlide() {
+      const prevIndex = (currentSlide - 1 + heroAnimes.length) % heroAnimes.length;
+      updateSlide(prevIndex);
+    }
+
+    function startAutoSlide() {
+      stopAutoSlide();
+      slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+    }
+
+    function stopAutoSlide() {
+      if (slideInterval) {
+        clearInterval(slideInterval);
+      }
+    }
+
+    function initHeroCarousel(animes) {
+      heroAnimes = animes.slice(0, 5); // Use first 5 anime for carousel
+      const slidesContainer = document.querySelector('.hero-slides');
+      const dotsContainer = document.querySelector('.hero-dots');
+      
+      // Clear existing content
+      slidesContainer.innerHTML = '';
+      dotsContainer.innerHTML = '';
+      
+      // Create slides
+      heroAnimes.forEach((anime, index) => {
+        slidesContainer.appendChild(createHeroSlide(anime, index));
+        
+        // Create dot
+        const dot = document.createElement('div');
+        dot.className = `hero-dot ${index === 0 ? 'active' : ''}`;
+        dot.onclick = () => {
+          updateSlide(index);
+          startAutoSlide();
+        };
+        dotsContainer.appendChild(dot);
+      });
+      
+      // Setup navigation buttons
+      const prevBtn = document.querySelector('.hero-prev');
+      const nextBtn = document.querySelector('.hero-next');
+      
+      prevBtn.onclick = () => {
+        prevSlide();
+        startAutoSlide();
+      };
+      
+      nextBtn.onclick = () => {
+        nextSlide();
+        startAutoSlide();
+      };
+      
+      // Start auto slide
+      startAutoSlide();
+      
+      // Pause on hover
+      const hero = document.getElementById('hero');
+      hero.addEventListener('mouseenter', stopAutoSlide);
+      hero.addEventListener('mouseleave', startAutoSlide);
+    }
+
+    async function loadHome() {
+      const latestGrid = document.getElementById('latest-grid');
+      const ongoingGrid = document.getElementById('ongoing-grid');
+
+      ui.showLoading(latestGrid);
+      ui.showLoading(ongoingGrid);
+
+      try {
+        const response = await api.fetchHome();
+        console.log('Home data received:', response);
+
+        // Extract anime lists from the actual API structure
+        let ongoingList = [];
+        let completedList = [];
+
+        if (response.data) {
+          // Get ongoing anime list
+          if (response.data.ongoing && response.data.ongoing.animeList) {
+            ongoingList = response.data.ongoing.animeList;
+          }
+          // Get completed anime list
+          if (response.data.completed && response.data.completed.animeList) {
+            completedList = response.data.completed.animeList;
+          }
+        }
+
+        console.log('Ongoing list:', ongoingList.length, 'items');
+        console.log('Completed list:', completedList.length, 'items');
+
+        // Initialize hero carousel with ongoing anime
+        if (ongoingList.length > 0) {
+          initHeroCarousel(ongoingList);
+        }
+
+        // Display ongoing anime (Latest Updates section)
+        latestGrid.innerHTML = '';
+        if (ongoingList.length > 0) {
+          ongoingList.slice(0, 15).forEach(anime => {
+            latestGrid.appendChild(ui.createAnimeCard(anime));
+          });
+        } else {
+          ui.showError(latestGrid, 'No latest anime available.');
+        }
+
+        // Display completed anime (Ongoing section - we'll show completed here)
+        ongoingGrid.innerHTML = '';
+        if (completedList.length > 0) {
+          completedList.slice(0, 14).forEach(anime => {
+            ongoingGrid.appendChild(ui.createAnimeCard(anime));
+          });
+        } else if (ongoingList.length > 14) {
+          // If no completed, show more ongoing
+          ongoingList.slice(14, 28).forEach(anime => {
+            ongoingGrid.appendChild(ui.createAnimeCard(anime));
+          });
+        } else {
+          ui.showError(ongoingGrid, 'No anime available.');
+        }
+
+      } catch (error) {
+        console.error('Error loading home:', error);
+        ui.showError(latestGrid, 'Failed to load anime. Please try again later.');
+        ui.showError(ongoingGrid, 'Failed to load anime. Please try again later.');
+      }
+    }
+
+    loadHome();
+  </script>
+</body>
+
+</html>

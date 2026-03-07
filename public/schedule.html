@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule - AnimeStream</title>
+  <link rel="stylesheet" href="/style/style.css">
+  <style>
+    .schedule-container {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .day-section {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      backdrop-filter: blur(20px);
+    }
+
+    .day-title {
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 2px solid var(--glass-border);
+      color: var(--text-primary);
+    }
+
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 1rem;
+    }
+
+    .schedule-item {
+      position: relative;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: var(--blur-md);
+      box-shadow: var(--shadow-sm);
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .schedule-item:hover {
+      transform: translateY(-6px) scale(1.02);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--glass-border-hover);
+      background: var(--glass-bg-hover);
+    }
+
+    .schedule-item-image {
+      position: relative;
+      padding-top: 145%;
+      overflow: hidden;
+      background: var(--bg-secondary);
+    }
+
+    .schedule-item-image img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .schedule-item:hover .schedule-item-image img {
+      transform: scale(1.15);
+    }
+
+    .schedule-item-title-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 2.5rem 0.5rem 0.5rem;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0.7) 40%, transparent 100%);
+      z-index: 2;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      text-align: center;
+    }
+
+    .schedule-item-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #fff;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+      margin: 0;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    }
+
+    @media (max-width: 768px) {
+      .schedule-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.75rem;
+      }
+
+      .schedule-item-title {
+        font-size: 0.75rem;
+      }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+      .schedule-grid {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
+
+    @media (min-width: 1025px) and (max-width: 1440px) {
+      .schedule-grid {
+        grid-template-columns: repeat(7, 1fr);
+      }
+    }
+
+    @media (min-width: 1441px) {
+      .schedule-grid {
+        grid-template-columns: repeat(8, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Release Schedule</h2>
+      </div>
+      <div class="schedule-container" id="schedule-container"></div>
+    </section>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    async function loadSchedule() {
+      const container = document.getElementById('schedule-container');
+      container.innerHTML = '<div class="skeleton" style="height: 300px;"></div>';
+
+      try {
+        const response = await api.fetchSchedule();
+        container.innerHTML = '';
+
+        // Data is an array of day objects
+        const scheduleData = response.data || response.schedule || [];
+
+        if (!Array.isArray(scheduleData) || scheduleData.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No schedule data available.</p>';
+          return;
+        }
+
+        scheduleData.forEach(dayObj => {
+          const dayName = dayObj.day || 'Unknown';
+          const animeList = dayObj.anime_list || [];
+
+          if (animeList.length > 0) {
+            const daySection = document.createElement('div');
+            daySection.className = 'day-section fade-in';
+
+            const dayTitle = document.createElement('h3');
+            dayTitle.className = 'day-title';
+            dayTitle.textContent = dayName;
+            daySection.appendChild(dayTitle);
+
+            const scheduleGrid = document.createElement('div');
+            scheduleGrid.className = 'schedule-grid';
+
+            animeList.forEach(anime => {
+              const scheduleItem = document.createElement('a');
+              scheduleItem.className = 'schedule-item fade-in';
+              
+              // Extract slug from url or slug field
+              const slug = anime.slug || anime.url?.split('/').pop() || '';
+              scheduleItem.href = `/detail/${slug}`;
+              
+              const poster = anime.poster || 'https://via.placeholder.com/200x280';
+              
+              scheduleItem.innerHTML = `
+                <div class="schedule-item-image">
+                  <img src="${poster}" alt="${anime.title || 'Unknown'}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x280'">
+                  <div class="schedule-item-title-overlay">
+                    <h4 class="schedule-item-title">${anime.title || 'Unknown'}</h4>
+                  </div>
+                </div>
+              `;
+              scheduleGrid.appendChild(scheduleItem);
+            });
+
+            daySection.appendChild(scheduleGrid);
+            container.appendChild(daySection);
+          }
+        });
+
+        if (container.children.length === 0) {
+          container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No schedule data available.</p>';
+        }
+
+      } catch (error) {
+        console.error('Error loading schedule:', error);
+        container.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">Failed to load schedule.</p>';
+      }
+    }
+
+    loadSchedule();
+  </script>
+</body>
+
+</html>

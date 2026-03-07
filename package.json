@@ -1,0 +1,33 @@
+{
+  "name": "anime-streaming-site",
+  "version": "1.0.0",
+  "description": "Modern anime streaming website with liquid glass UI",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "test-api": "node test-api.js",
+    "test-detail": "node test-detail.js",
+    "test-episode": "node test-episode.js",
+    "test-server": "node test-server.js",
+    "generate-icons": "node generate-icons.js && node convert-icons.js",
+    "deploy:railway": "echo 'Push to GitHub to deploy to Railway'",
+    "deploy:vercel": "vercel --prod"
+  },
+  "keywords": [
+    "anime",
+    "streaming",
+    "express"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.6.0",
+    "cheerio": "^1.2.0",
+    "cors": "^2.8.5",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  }
+}
