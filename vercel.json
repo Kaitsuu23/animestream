@@ -23,11 +23,11 @@
       "dest": "/index.html"
     },
     {
-      "src": "/anime-list",
+      "src": "/anime-list/?",
       "dest": "/catalog.html"
     },
     {
-      "src": "/ongoing-anime",
+      "src": "/ongoing-anime/?",
       "dest": "/ongoing-anime.html"
     },
     {
@@ -35,7 +35,7 @@
       "dest": "/ongoing-anime.html"
     },
     {
-      "src": "/complete-anime",
+      "src": "/complete-anime/?",
       "dest": "/complete-anime.html"
     },
     {
@@ -59,7 +59,7 @@
       "dest": "/episode.html"
     },
     {
-      "src": "/genre-list",
+      "src": "/genre-list/?",
       "dest": "/genre-list.html"
     },
     {
@@ -71,11 +71,11 @@
       "dest": "/genre-list.html"
     },
     {
-      "src": "/schedule",
+      "src": "/schedule/?",
       "dest": "/schedule.html"
     },
     {
-      "src": "/status",
+      "src": "/status/?",
       "dest": "/status.html"
     }
   ]
