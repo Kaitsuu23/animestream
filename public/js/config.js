@@ -5,7 +5,7 @@ const API_CONFIG = {
   // Production: use Railway backend URL
   BASE_URL: window.location.hostname === 'localhost' 
     ? 'http://localhost:3000/api'
-    : 'https://your-railway-app.up.railway.app/api'
+    : 'https://animestream-production-2756.up.railway.app/api'
 };
 
 // Export for use in api.js
