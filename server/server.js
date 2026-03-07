@@ -11,7 +11,7 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://localhost:5173',
-        'https://your-vercel-app.vercel.app', // Update with your Vercel URL
+        'https://animestream-mauve.vercel.app', // Vercel production URL
         /\.vercel\.app$/ // Allow all Vercel preview deployments
     ],
     credentials: true
