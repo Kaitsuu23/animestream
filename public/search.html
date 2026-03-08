@@ -80,6 +80,12 @@
       const noResults = document.getElementById('noResults');
       const searchInput = document.getElementById('searchInput');
 
+      // Update URL to show /?s=... instead of /search.html?s=...
+      if (query && postType === 'anime') {
+        const cleanUrl = `/?s=${query}&post_type=anime`;
+        window.history.replaceState({}, '', cleanUrl);
+      }
+
       // Redirect to home if not anime search
       if (postType && postType !== 'anime') {
         window.location.href = '/';
@@ -157,7 +163,7 @@
       searchTitle.textContent = 'Search Anime';
     }
 
-    // Handle search input
+    // Handle search input - Enter key only
     let searchTimeout;
     searchInput.addEventListener('keypress', (e) => {
       if (e.key === 'Enter') {
@@ -170,7 +176,8 @@
       }
     });
 
-    // Update search on input (optional - for live search)
+    // Optional: Uncomment below for live search while typing
+    /*
     searchInput.addEventListener('input', (e) => {
       clearTimeout(searchTimeout);
       const keyword = e.target.value.trim();
@@ -180,12 +187,13 @@
           // Replace spaces with + for URL
           const encodedKeyword = keyword.replace(/\s+/g, '+');
           // Update URL without reload
-          const newUrl = `/?s=${encodedKeyword}&post_type=anime`;
+          const newUrl = `/search/?s=${encodedKeyword}&post_type=anime`;
           window.history.pushState({}, '', newUrl);
           performSearch(encodedKeyword);
         }, 500);
       }
     });
+    */
     })(); // End IIFE
   </script>
   <script src="/sw-register.js"></script>

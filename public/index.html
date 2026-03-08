@@ -89,9 +89,10 @@
     const searchQuery = urlParams.get('s');
     const postType = urlParams.get('post_type');
 
-    // If search query exists, redirect to search page
+    // If search query exists, redirect to search page (keep same URL)
     if (searchQuery && postType === 'anime') {
-      window.location.href = `/search/?s=${searchQuery}&post_type=anime`;
+      // Use replaceState to keep the URL as /?s=...&post_type=anime
+      window.location.replace(`/search.html?s=${searchQuery}&post_type=anime`);
     }
 
     let currentSlide = 0;
