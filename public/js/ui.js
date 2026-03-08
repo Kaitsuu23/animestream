@@ -168,9 +168,7 @@ if (searchInput && searchResults) {
     if (e.key === 'Enter') {
       const keyword = searchInput.value.trim();
       if (keyword.length >= 2) {
-        // Replace spaces with + for URL
-        const encodedKeyword = keyword.replace(/\s+/g, '+');
-        window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+        window.location.href = `/search/?keyword=${encodeURIComponent(keyword)}`;
       }
     }
   });
@@ -232,9 +230,7 @@ if (searchInput && searchResults) {
             </div>
           `;
           viewAllBtn.onclick = () => {
-            // Replace spaces with + for URL
-            const encodedKeyword = keyword.replace(/\s+/g, '+');
-            window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+            window.location.href = `/search/?keyword=${encodeURIComponent(keyword)}`;
           };
           searchResults.appendChild(viewAllBtn);
           

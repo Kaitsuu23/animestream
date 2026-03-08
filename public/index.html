@@ -88,7 +88,11 @@
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get('s');
     const postType = urlParams.get('post_type');
-    const isSearchMode = searchQuery && postType === 'anime';
+
+    // If search query exists, redirect to search page
+    if (searchQuery && postType === 'anime') {
+      window.location.replace(`/search/?keyword=${encodeURIComponent(searchQuery)}`);
+    }
 
     let currentSlide = 0;
     let slideInterval;
@@ -263,68 +267,7 @@
       }
     }
 
-    // Function to show search results on homepage
-    async function showSearchResults(keyword) {
-      // Hide hero section
-      const heroSection = document.querySelector('.hero');
-      if (heroSection) heroSection.style.display = 'none';
-
-      // Update page title
-      document.title = `Search: ${keyword} - AnimeStream`;
-
-      // Get containers
-      const latestSection = document.querySelector('.section:nth-of-type(1)');
-      const ongoingSection = document.querySelector('.section:nth-of-type(2)');
-      
-      // Hide ongoing section
-      if (ongoingSection) ongoingSection.style.display = 'none';
-
-      // Update latest section to show search results
-      if (latestSection) {
-        const sectionTitle = latestSection.querySelector('.section-title');
-        if (sectionTitle) {
-          sectionTitle.textContent = `Search Results for "${keyword.replace(/\+/g, ' ')}"`;
-        }
-
-        const latestGrid = document.getElementById('latest-grid');
-        latestGrid.innerHTML = '<div class="skeleton" style="height: 300px;"></div>';
-
-        try {
-          const response = await api.search(keyword);
-          console.log('Search response:', response);
-
-          latestGrid.innerHTML = '';
-
-          if (response.data && response.data.animeList && response.data.animeList.length > 0) {
-            response.data.animeList.forEach(anime => {
-              latestGrid.appendChild(ui.createAnimeCard(anime));
-            });
-          } else {
-            latestGrid.innerHTML = `
-              <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
-                <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
-                <h3 style="color: var(--text-primary); margin-bottom: 0.5rem;">No Results Found</h3>
-                <p style="color: var(--text-secondary);">Try searching with different keywords</p>
-              </div>
-            `;
-          }
-        } catch (error) {
-          console.error('Search error:', error);
-          ui.showError(latestGrid, 'Failed to load search results. Please try again.');
-        }
-      }
-    }
-
-    // Load homepage or search results
-    if (isSearchMode) {
-      // Search mode - hide hero and show search results
-      document.addEventListener('DOMContentLoaded', () => {
-        showSearchResults(searchQuery);
-      });
-    } else {
-      // Normal homepage
-      loadHome();
-    }
+    loadHome();
   </script>
 </body>
 
