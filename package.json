@@ -7,10 +7,8 @@
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
     "test-api": "node test-api.js",
-    "test-detail": "node test-detail.js",
-    "test-episode": "node test-episode.js",
-    "test-server": "node test-server.js",
-    "generate-icons": "node generate-icons.js && node convert-icons.js",
+    "generate-icons": "node generate-icons.js",
+    "generate-icons-advanced": "node generate-icons-advanced.js",
     "deploy:railway": "echo 'Push to GitHub to deploy to Railway'",
     "deploy:vercel": "vercel --prod"
   },
@@ -25,7 +23,8 @@
     "axios": "^1.6.0",
     "cheerio": "^1.2.0",
     "cors": "^2.8.5",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "sharp": "^0.33.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

@@ -1,5 +1,6 @@
-// Simple icon generator using Canvas
-// Run: node generate-icons.js
+// Icon generator using your custom logo/image
+// Run: node generate-icons.js <path-to-your-logo>
+// Example: node generate-icons.js logo.png
 
 const fs = require('fs');
 const path = require('path');
@@ -11,36 +12,65 @@ if (!fs.existsSync(iconsDir)) {
   fs.mkdirSync(iconsDir, { recursive: true });
 }
 
-// Create a simple SVG icon
 const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
 
-const createSVG = (size) => {
-  return `<svg width="${size}" height="${size}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  <rect width="${size}" height="${size}" fill="url(#grad)" rx="${size * 0.15}"/>
-  <text x="50%" y="50%" font-family="Arial, sans-serif" font-size="${size * 0.4}" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">AS</text>
-</svg>`;
-};
+// Check if sharp is installed
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (err) {
+  console.error('❌ Sharp is not installed!');
+  console.error('Install it with: npm install sharp');
+  process.exit(1);
+}
 
-console.log('Generating PWA icons...');
+// Get logo path from command line argument
+const logoPath = process.argv[2];
 
-sizes.forEach(size => {
-  const svg = createSVG(size);
-  const filename = `icon-${size}x${size}.png`;
-  const filepath = path.join(iconsDir, filename);
-  
-  // For now, save as SVG (you can convert to PNG using sharp or canvas later)
-  const svgPath = filepath.replace('.png', '.svg');
-  fs.writeFileSync(svgPath, svg);
-  console.log(`✓ Created ${filename.replace('.png', '.svg')}`);
-});
+if (!logoPath) {
+  console.error('❌ Please provide a logo file path!');
+  console.error('Usage: node generate-icons.js <path-to-your-logo>');
+  console.error('Example: node generate-icons.js logo.png');
+  console.error('');
+  console.error('Supported formats: PNG, JPG, JPEG, SVG, WEBP');
+  process.exit(1);
+}
 
-console.log('\n✓ Icons generated successfully!');
-console.log('\nNote: SVG icons created. For PNG conversion, install sharp:');
-console.log('  npm install sharp');
-console.log('  Then use sharp to convert SVG to PNG');
+const fullLogoPath = path.resolve(logoPath);
+
+if (!fs.existsSync(fullLogoPath)) {
+  console.error(`❌ Logo file not found: ${fullLogoPath}`);
+  process.exit(1);
+}
+
+console.log(`📸 Using logo: ${fullLogoPath}`);
+console.log('🎨 Generating PWA icons...\n');
+
+// Generate icons for all sizes
+async function generateIcons() {
+  try {
+    for (const size of sizes) {
+      const filename = `icon-${size}x${size}.png`;
+      const filepath = path.join(iconsDir, filename);
+
+      await sharp(fullLogoPath)
+        .resize(size, size, {
+          fit: 'contain',
+          background: { r: 0, g: 0, b: 0, alpha: 0 } // Transparent background
+        })
+        .png()
+        .toFile(filepath);
+
+      console.log(`✓ Created ${filename}`);
+    }
+
+    console.log('\n✅ All icons generated successfully!');
+    console.log(`📁 Icons saved to: ${iconsDir}`);
+    
+  } catch (error) {
+    console.error('❌ Error generating icons:', error.message);
+    process.exit(1);
+  }
+}
+
+generateIcons();
