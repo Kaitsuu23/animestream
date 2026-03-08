@@ -44,7 +44,8 @@ const ui = {
 
     // Handle date and day badge representation
     let dateText = anime.releaseDate || anime.lastReleaseDate || anime.latestReleaseDate || anime.updatedAt || '';
-    if (!dateText && !anime.releaseDay) {
+    // Don't use status as fallback for date if hideStatus is true
+    if (!dateText && !anime.releaseDay && !hideStatus) {
       dateText = anime.status || anime.type || '';
     }
 
