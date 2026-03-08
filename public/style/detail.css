@@ -159,6 +159,11 @@
     margin: 0 auto;
   }
 
+  .detail-poster img {
+    border: none;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+  }
+
   .detail-info h1 {
     font-size: 1.5rem;
     text-align: center;
@@ -215,6 +220,12 @@
 @media (max-width: 480px) {
   .detail-poster {
     max-width: 160px;
+  }
+
+  .detail-poster img {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
   }
 
   .detail-info h1 {
