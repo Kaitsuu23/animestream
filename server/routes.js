@@ -200,7 +200,8 @@ router.get('/search/:keyword', asyncHandler(async (req, res) => {
     return res.json(cached);
   }
 
-  const response = await axiosInstance.get(`${BASE_URL}/search/${keyword}`);
+  // Use the correct search endpoint
+  const response = await axiosInstance.get(`${BASE_URL}/search/${encodeURIComponent(keyword)}`);
   setCachedData(cacheKey, response.data);
   res.json(response.data);
 }));

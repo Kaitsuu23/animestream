@@ -104,18 +104,26 @@
 
       try {
         // Use decoded keyword for API call
+        console.log('Searching for:', displayKeyword);
         const data = await api.search(displayKeyword);
-        console.log('Search data:', data);
+        console.log('Search API response:', data);
 
         // Try different possible data structures
         let results = [];
         if (data.data) {
           results = data.data.results || data.data.anime || data.data;
-        } else {
-          results = data.results || data.anime || [];
+        } else if (data.results) {
+          results = data.results;
+        } else if (data.anime) {
+          results = data.anime;
+        } else if (Array.isArray(data)) {
+          results = data;
         }
 
+        console.log('Parsed results:', results);
+
         if (!Array.isArray(results)) {
+          console.warn('Results is not an array:', results);
           results = [];
         }
 
@@ -130,6 +138,7 @@
         }
       } catch (error) {
         console.error('Search error:', error);
+        console.error('Error details:', error.response || error.message);
         ui.showError(searchGrid, 'Failed to load search results. Please try again.');
       }
     }

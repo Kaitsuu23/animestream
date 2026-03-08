@@ -187,19 +187,27 @@ if (searchInput && searchResults) {
 
     searchTimeout = setTimeout(async () => {
       try {
+        console.log('Searching dropdown for:', keyword);
         const data = await api.search(keyword);
-        console.log('Search results:', data);
+        console.log('Dropdown search results:', data);
         searchResults.innerHTML = '';
 
         // Try different possible data structures
         let results = [];
         if (data.data) {
           results = data.data.results || data.data.anime || data.data;
-        } else {
-          results = data.results || data.anime || [];
+        } else if (data.results) {
+          results = data.results;
+        } else if (data.anime) {
+          results = data.anime;
+        } else if (Array.isArray(data)) {
+          results = data;
         }
 
+        console.log('Dropdown parsed results:', results);
+
         if (!Array.isArray(results)) {
+          console.warn('Results is not an array:', results);
           results = [];
         }
 
@@ -231,6 +239,9 @@ if (searchInput && searchResults) {
         }
       } catch (error) {
         console.error('Search error:', error);
+        console.error('Error details:', error.response || error.message);
+        searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">Search failed. Try again.</div>';
+        searchResults.classList.add('active');
       }
     }, 300);
   });

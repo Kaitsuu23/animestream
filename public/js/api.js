@@ -59,7 +59,7 @@ const api = {
   },
 
   async search(keyword) {
-    return fetchWithRetry(`${API_BASE}/search/${keyword}`);
+    return fetchWithRetry(`${API_BASE}/search/${encodeURIComponent(keyword)}`);
   },
 
   async fetchStream(serverId) {
