@@ -7,6 +7,7 @@
     "start": "node server/server.js",
     "dev": "nodemon server/server.js",
     "test-api": "node test-api.js",
+    "test-errors": "node test-errors.js",
     "generate-icons": "node generate-icons.js",
     "generate-icons-advanced": "node generate-icons-advanced.js",
     "deploy:railway": "echo 'Push to GitHub to deploy to Railway'",

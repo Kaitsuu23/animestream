@@ -40,23 +40,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/anime-list/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/catalog.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/catalog.html'));
 });
 
 app.get('/ongoing-anime', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/ongoing-anime.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/ongoing-anime.html'));
 });
 
 app.get('/ongoing-anime/page/:page', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/ongoing-anime.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/ongoing-anime.html'));
 });
 
 app.get('/complete-anime', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/complete-anime.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/complete-anime.html'));
 });
 
 app.get('/complete-anime/page/:page', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/complete-anime.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/complete-anime.html'));
 });
 
 app.get('/catalog', (req, res) => {
@@ -64,43 +64,55 @@ app.get('/catalog', (req, res) => {
 });
 
 app.get('/detail/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/detail.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/detail.html'));
 });
 
 app.get('/anime/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/detail.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/detail.html'));
 });
 
 app.get('/batch/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/batch.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/batch.html'));
 });
 
 app.get('/episode/:slug', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/episode.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/episode.html'));
 });
 
 app.get('/genre-list/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/genre-list.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/genre-list.html'));
 });
 
 app.get('/genres/:slug/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/genre-list.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/genre-list.html'));
 });
 
 app.get('/genres/:slug/page/:page', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/genre-list.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/genre-list.html'));
 });
 
 app.get('/schedule/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/schedule.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/schedule.html'));
 });
 
 app.get('/search/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/search.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/search.html'));
 });
 
 app.get('/status', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/status.html'));
+    res.sendFile(path.join(__dirname, '../public/pages/status.html'));
+});
+
+// Error handling middleware
+// 404 - Not Found (harus di akhir semua routes)
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, '../public/errors/404.html'));
+});
+
+// 500 - Internal Server Error
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err.stack);
+    res.status(500).sendFile(path.join(__dirname, '../public/errors/500.html'));
 });
 
 app.listen(PORT, () => {

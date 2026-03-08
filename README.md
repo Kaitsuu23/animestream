@@ -87,9 +87,34 @@ If you see errors like "502 Bad Gateway" or "API temporarily unavailable":
 
 ### Common Errors:
 
+- **404 Not Found** - Halaman tidak ditemukan, cek URL atau gunakan search
+- **403 Forbidden** - Akses ditolak, mungkin IP diblokir atau konten dibatasi
+- **500 Internal Server Error** - Error di server, cek logs dan restart server
 - **502 Bad Gateway** - API server is down, wait and try again
-- **504 Timeout** - API is slow, increase timeout or try again
-- **No anime found** - API might be down, cached data will be shown if available
+- **503 Service Unavailable** - Server maintenance atau overload
+- **504 Gateway Timeout** - API is slow, increase timeout or try again
+
+### Error Pages
+
+Aplikasi memiliki halaman error yang informatif untuk setiap jenis error di folder `/public/errors/`:
+- `/errors/404.html` - Halaman tidak ditemukan
+- `/errors/403.html` - Akses ditolak
+- `/errors/500.html` - Server error
+- `/errors/502.html` - Bad gateway
+- `/errors/503.html` - Service unavailable
+- `/errors/504.html` - Gateway timeout
+
+Setiap halaman error menjelaskan:
+- Apa yang terjadi
+- Kemungkinan penyebab
+- Solusi yang bisa dicoba
+
+### Testing Errors
+
+Run error handling tests:
+```bash
+npm run test-errors
+```
 
 ### If anime fails to load:
 
@@ -105,6 +130,11 @@ npm run test-api
 4. The app will automatically fallback to alternative endpoints if the primary fails
 
 5. Clear cache by restarting the server
+
+### Learn More
+
+- **Full Error Documentation**: See `ERROR-HANDLING.md`
+- **Quick Reference**: See `ERROR-QUICK-REFERENCE.md`
 
 ## API Endpoints
 

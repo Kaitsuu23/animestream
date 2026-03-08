@@ -58,10 +58,30 @@
 
     <!-- No results message -->
     <div id="noResults" style="display: none; text-align: center; padding: 4rem 2rem;">
-      <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔍</div>
-      <h2 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">No anime found</h2>
-      <p style="color: var(--text-secondary); margin-bottom: 2rem;">Try searching with different keywords</p>
-      <a href="/" class="btn btn-primary">Back to Home</a>
+      <div style="font-size: 4rem; margin-bottom: 1.5rem; animation: fadeIn 0.5s;">😔</div>
+      <h2 style="font-size: 1.75rem; margin-bottom: 1rem; color: var(--text-primary); font-weight: 700;">Anime Not Found</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 0.5rem; font-size: 1.1rem;">
+        We couldn't find any anime matching <strong id="searchKeyword" style="color: var(--accent); font-weight: 600;"></strong>
+      </p>
+      <p style="color: var(--text-tertiary); margin-bottom: 2.5rem; font-size: 0.95rem;">
+        Try searching with different keywords or check the spelling
+      </p>
+      <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+        <a href="/" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem; vertical-align: middle;">
+            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+          </svg>
+          Back to Home
+        </a>
+        <button onclick="document.getElementById('searchInput').focus(); document.getElementById('searchInput').select();" class="btn btn-secondary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 0.5rem; vertical-align: middle;">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Try Another Search
+        </button>
+      </div>
     </div>
   </div>
 
@@ -146,6 +166,8 @@
             searchGrid.appendChild(ui.createAnimeCard(anime));
           });
         } else {
+          // Show no results with the searched keyword
+          document.getElementById('searchKeyword').textContent = `"${displayKeyword}"`;
           noResults.style.display = 'block';
         }
       } catch (error) {

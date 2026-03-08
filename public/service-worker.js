@@ -5,7 +5,7 @@ const urlsToCache = [
   '/style/detail.css',
   '/js/api.js',
   '/js/ui.js',
-  '/offline.html'
+  '/pages/offline.html'
 ];
 
 // Install event - cache resources
@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
         ).catch(() => {
           // If both cache and network fail, show offline page
           if (event.request.mode === 'navigate') {
-            return caches.match('/offline.html');
+            return caches.match('/pages/offline.html');
           }
         });
       })
