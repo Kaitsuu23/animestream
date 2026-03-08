@@ -50,16 +50,19 @@ const ui = {
 
     let dayText = anime.releaseDay || '';
     if (!dayText && anime.score) {
-      dayText = ` ${anime.score}`;
+      dayText = `${anime.score}`;
     }
+
+    // Show status badge only if hideStatus is false
+    const showStatusBadge = !hideStatus && anime.status;
 
     card.innerHTML = `
       <div class="anime-card-image">
         <img src="${image}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x280'">
         
-        ${!hideStatus && anime.status && (anime.status.toLowerCase().includes('ongoing') || anime.status.toLowerCase().includes('on-going')) ? `
+        ${showStatusBadge && (anime.status.toLowerCase().includes('ongoing') || anime.status.toLowerCase().includes('on-going')) ? `
         <div class="anime-status-badge ongoing">Ongoing</div>
-        ` : !hideStatus && anime.status && anime.status.toLowerCase().includes('completed') ? `
+        ` : showStatusBadge && anime.status.toLowerCase().includes('completed') ? `
         <div class="anime-status-badge completed">Completed</div>
         ` : ''}
         
