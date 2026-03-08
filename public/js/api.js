@@ -16,6 +16,16 @@ async function fetchWithRetry(url, retries = 2) {
         error.status = response.status;
         error.data = errorData;
         
+        // Redirect to error page for critical errors (only on last retry)
+        if (i === retries && response.status >= 500) {
+          // Only redirect if it's a critical API failure
+          if (url.includes('/api/home') || url.includes('/api/all')) {
+            console.error('Critical API failure, redirecting to error page');
+            // Uncomment to enable redirect:
+            // window.location.href = `/errors/${response.status}.html`;
+          }
+        }
+        
         // Don't retry on client errors (4xx)
         if (response.status >= 400 && response.status < 500) {
           throw error;
