@@ -56,6 +56,12 @@ const ui = {
       <div class="anime-card-image">
         <img src="${image}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x280'">
         
+        ${anime.status && (anime.status.toLowerCase().includes('ongoing') || anime.status.toLowerCase().includes('on-going')) ? `
+        <div class="anime-status-badge ongoing">Ongoing</div>
+        ` : anime.status && anime.status.toLowerCase().includes('completed') ? `
+        <div class="anime-status-badge completed">Completed</div>
+        ` : ''}
+        
         ${episodeBadge ? `
         <div class="anime-ep-badge">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px; vertical-align: middle;">
@@ -63,8 +69,6 @@ const ui = {
           </svg>
           <span style="vertical-align: middle;">${episodeBadge}</span>
         </div>` : ''}
-        
-        ${dateText ? `<div class="anime-date-badge">${dateText}</div>` : ''}
         
         ${dayText ? `
         <div class="anime-day-badge">
