@@ -163,6 +163,19 @@ const searchInput = document.querySelector('.search-input');
 const searchResults = document.querySelector('.search-results');
 
 if (searchInput && searchResults) {
+  // Handle Enter key to go to search page
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      const keyword = searchInput.value.trim();
+      if (keyword.length >= 2) {
+        // Replace spaces with + for URL
+        const encodedKeyword = keyword.replace(/\s+/g, '+');
+        window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+      }
+    }
+  });
+
+  // Live search dropdown
   searchInput.addEventListener('input', (e) => {
     clearTimeout(searchTimeout);
     const keyword = e.target.value.trim();
@@ -194,6 +207,23 @@ if (searchInput && searchResults) {
           results.slice(0, 5).forEach(anime => {
             searchResults.appendChild(ui.createSearchItem(anime));
           });
+          
+          // Add "View all results" button
+          const viewAllBtn = document.createElement('div');
+          viewAllBtn.className = 'search-item';
+          viewAllBtn.style.cssText = 'justify-content: center; background: var(--glass-bg-hover); cursor: pointer; font-weight: 600; color: var(--accent);';
+          viewAllBtn.innerHTML = `
+            <div style="text-align: center; width: 100%;">
+              View all results for "${keyword}" →
+            </div>
+          `;
+          viewAllBtn.onclick = () => {
+            // Replace spaces with + for URL
+            const encodedKeyword = keyword.replace(/\s+/g, '+');
+            window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+          };
+          searchResults.appendChild(viewAllBtn);
+          
           searchResults.classList.add('active');
         } else {
           searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">No results found</div>';
@@ -205,9 +235,17 @@ if (searchInput && searchResults) {
     }, 300);
   });
 
+  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
       searchResults.classList.remove('active');
+    }
+  });
+
+  // Focus search input to show dropdown again
+  searchInput.addEventListener('focus', (e) => {
+    if (searchInput.value.trim().length >= 2 && searchResults.children.length > 0) {
+      searchResults.classList.add('active');
     }
   });
 }

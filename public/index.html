@@ -41,6 +41,10 @@
         <li><a href="/schedule/">Schedule</a></li>
       </ul>
       <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
         <input type="text" class="search-input" placeholder="Search anime...">
         <div class="search-results"></div>
       </div>
@@ -81,6 +85,16 @@
   <script src="/js/api.js"></script>
   <script src="/js/ui.js"></script>
   <script>
+    // Check if this is a search request
+    const urlParams = new URLSearchParams(window.location.search);
+    const searchQuery = urlParams.get('s');
+    const postType = urlParams.get('post_type');
+
+    // If search query exists, redirect to search page
+    if (searchQuery && postType === 'anime') {
+      window.location.href = `/search.html?s=${encodeURIComponent(searchQuery)}&post_type=anime`;
+    }
+
     let currentSlide = 0;
     let slideInterval;
     let heroAnimes = [];

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Search anime - Find your favorite anime series">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="AnimeStream">
+  
+  <title>Search Anime - AnimeStream</title>
+  
+  <link rel="stylesheet" href="/style/style.css">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192x192.png">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+</head>
+
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="/" class="logo">AnimeStream</a>
+      <button class="mobile-menu-toggle" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/anime-list/">Anime</a></li>
+        <li><a href="/genre-list/">Genres</a></li>
+        <li><a href="/ongoing-anime/">Ongoing</a></li>
+        <li><a href="/schedule/">Schedule</a></li>
+      </ul>
+      <div class="search-container">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" class="search-input" id="searchInput" placeholder="Search anime...">
+        <div class="search-results"></div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container">
+    <section class="section">
+      <div class="section-header">
+        <h1 class="section-title" id="searchTitle">Search Results</h1>
+      </div>
+      <div class="anime-grid" id="searchGrid">
+        <!-- Search results will be loaded here -->
+      </div>
+    </section>
+
+    <!-- No results message -->
+    <div id="noResults" style="display: none; text-align: center; padding: 4rem 2rem;">
+      <div style="font-size: 4rem; margin-bottom: 1.5rem;">🔍</div>
+      <h2 style="font-size: 1.5rem; margin-bottom: 1rem; color: var(--text-primary);">No anime found</h2>
+      <p style="color: var(--text-secondary); margin-bottom: 2rem;">Try searching with different keywords</p>
+      <a href="/" class="btn btn-primary">Back to Home</a>
+    </div>
+  </div>
+
+  <script src="/js/config.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/ui.js"></script>
+  <script>
+    // Get search query from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const query = urlParams.get('s');
+    const postType = urlParams.get('post_type');
+    const searchGrid = document.getElementById('searchGrid');
+    const searchTitle = document.getElementById('searchTitle');
+    const noResults = document.getElementById('noResults');
+    const searchInput = document.getElementById('searchInput');
+
+    // Redirect to home if not anime search
+    if (postType && postType !== 'anime') {
+      window.location.href = '/';
+    }
+
+    // Set search input value (decode + to space)
+    if (query) {
+      searchInput.value = query.replace(/\+/g, ' ');
+    }
+
+    async function performSearch(keyword) {
+      if (!keyword || keyword.trim().length < 2) {
+        searchGrid.innerHTML = '';
+        noResults.style.display = 'block';
+        searchTitle.textContent = 'Search Anime';
+        return;
+      }
+
+      // Decode + to space for display
+      const displayKeyword = keyword.replace(/\+/g, ' ');
+      searchTitle.textContent = `Search results for "${displayKeyword}"`;
+      noResults.style.display = 'none';
+      ui.showLoading(searchGrid, 12);
+
+      try {
+        // Use decoded keyword for API call
+        const data = await api.search(displayKeyword);
+        console.log('Search data:', data);
+
+        // Try different possible data structures
+        let results = [];
+        if (data.data) {
+          results = data.data.results || data.data.anime || data.data;
+        } else {
+          results = data.results || data.anime || [];
+        }
+
+        if (!Array.isArray(results)) {
+          results = [];
+        }
+
+        searchGrid.innerHTML = '';
+
+        if (results.length > 0) {
+          results.forEach(anime => {
+            searchGrid.appendChild(ui.createAnimeCard(anime));
+          });
+        } else {
+          noResults.style.display = 'block';
+        }
+      } catch (error) {
+        console.error('Search error:', error);
+        ui.showError(searchGrid, 'Failed to load search results. Please try again.');
+      }
+    }
+
+    // Perform search on page load
+    if (query) {
+      performSearch(query);
+    } else {
+      noResults.style.display = 'block';
+      searchTitle.textContent = 'Search Anime';
+    }
+
+    // Handle search input
+    let searchTimeout;
+    searchInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        const keyword = searchInput.value.trim();
+        if (keyword) {
+          // Replace spaces with + for URL
+          const encodedKeyword = keyword.replace(/\s+/g, '+');
+          window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+        }
+      }
+    });
+
+    // Update search on input (optional - for live search)
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      const keyword = e.target.value.trim();
+      
+      if (keyword.length >= 2) {
+        searchTimeout = setTimeout(() => {
+          // Replace spaces with + for URL
+          const encodedKeyword = keyword.replace(/\s+/g, '+');
+          // Update URL without reload
+          const newUrl = `/?s=${encodedKeyword}&post_type=anime`;
+          window.history.pushState({}, '', newUrl);
+          performSearch(encodedKeyword);
+        }, 500);
+      }
+    });
+  </script>
+  <script src="/sw-register.js"></script>
+</body>
+
+</html>
