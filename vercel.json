@@ -8,20 +8,25 @@
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "server/server.js"
+      "src": "/style/(.*)",
+      "dest": "/public/style/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
     },
     {
       "src": "/js/(.*)",
-      "dest": "/public/js/$1"
-    },
-    {
-      "src": "/style/(.*)",
-      "dest": "/public/style/$1"
+      "dest": "/public/js/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
     },
     {
       "src": "/icons/(.*)",
-      "dest": "/public/icons/$1"
+      "dest": "/public/icons/$1",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
     },
     {
       "src": "/errors/(.*)",
@@ -49,6 +54,10 @@
         "Content-Type": "application/manifest+json"
       },
       "dest": "/public/manifest.json"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.js"
     },
     {
       "src": "/",
