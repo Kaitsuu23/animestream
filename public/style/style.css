@@ -605,7 +605,8 @@ body {
 .anime-day-badge {
   position: absolute;
   right: 8px;
-  top: 8px;
+  top: 50%;
+  transform: translateY(-50%);
   background: rgba(251, 191, 36, 0.65);
   color: white;
   padding: 0.35rem 0.65rem;
