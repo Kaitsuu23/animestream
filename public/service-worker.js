@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animestream-v1';
+const CACHE_NAME = 'animestream-v2';
 const urlsToCache = [
   '/',
   '/style/style.css',

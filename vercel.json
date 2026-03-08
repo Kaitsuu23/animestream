@@ -24,63 +24,63 @@
     },
     {
       "src": "/anime-list/?",
-      "dest": "/catalog.html"
+      "dest": "/pages/catalog.html"
     },
     {
       "src": "/ongoing-anime/?",
-      "dest": "/ongoing-anime.html"
+      "dest": "/pages/ongoing-anime.html"
     },
     {
       "src": "/ongoing-anime/page/(.*)",
-      "dest": "/ongoing-anime.html"
+      "dest": "/pages/ongoing-anime.html"
     },
     {
       "src": "/complete-anime/?",
-      "dest": "/complete-anime.html"
+      "dest": "/pages/complete-anime.html"
     },
     {
       "src": "/complete-anime/page/(.*)",
-      "dest": "/complete-anime.html"
+      "dest": "/pages/complete-anime.html"
     },
     {
       "src": "/detail/(.*)",
-      "dest": "/detail.html"
+      "dest": "/pages/detail.html"
     },
     {
       "src": "/anime/(.*)",
-      "dest": "/detail.html"
+      "dest": "/pages/detail.html"
     },
     {
       "src": "/batch/(.*)",
-      "dest": "/batch.html"
+      "dest": "/pages/batch.html"
     },
     {
       "src": "/episode/(.*)",
-      "dest": "/episode.html"
+      "dest": "/pages/episode.html"
     },
     {
       "src": "/genre-list/?",
-      "dest": "/genre-list.html"
+      "dest": "/pages/genre-list.html"
     },
     {
       "src": "/genres/(.*)/page/(.*)",
-      "dest": "/genre-list.html"
+      "dest": "/pages/genre-list.html"
     },
     {
       "src": "/genres/(.*)",
-      "dest": "/genre-list.html"
+      "dest": "/pages/genre-list.html"
     },
     {
       "src": "/schedule/?",
-      "dest": "/schedule.html"
+      "dest": "/pages/schedule.html"
     },
     {
       "src": "/search/?",
-      "dest": "/search.html"
+      "dest": "/pages/search.html"
     },
     {
       "src": "/status/?",
-      "dest": "/status.html"
+      "dest": "/pages/status.html"
     }
   ]
 }
