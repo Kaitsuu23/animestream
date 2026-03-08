@@ -4,10 +4,6 @@
     {
       "src": "server/server.js",
       "use": "@vercel/node"
-    },
-    {
-      "src": "public/**",
-      "use": "@vercel/static"
     }
   ],
   "routes": [
@@ -16,8 +12,24 @@
       "dest": "server/server.js"
     },
     {
-      "src": "/(js|style|icons|errors|pages)/(.*)",
-      "dest": "/public/$1/$2"
+      "src": "/js/(.*)",
+      "dest": "/public/js/$1"
+    },
+    {
+      "src": "/style/(.*)",
+      "dest": "/public/style/$1"
+    },
+    {
+      "src": "/icons/(.*)",
+      "dest": "/public/icons/$1"
+    },
+    {
+      "src": "/errors/(.*)",
+      "dest": "/public/errors/$1"
+    },
+    {
+      "src": "/pages/(.*)",
+      "dest": "/public/pages/$1"
     },
     {
       "src": "/service-worker.js",
@@ -40,76 +52,71 @@
     },
     {
       "src": "/",
-      "dest": "/public/index.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/anime-list/?",
-      "dest": "/public/pages/catalog.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/ongoing-anime/?",
-      "dest": "/public/pages/ongoing-anime.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/ongoing-anime/page/(.*)",
-      "dest": "/public/pages/ongoing-anime.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/complete-anime/?",
-      "dest": "/public/pages/complete-anime.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/complete-anime/page/(.*)",
-      "dest": "/public/pages/complete-anime.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/detail/(.*)",
-      "dest": "/public/pages/detail.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/anime/(.*)",
-      "dest": "/public/pages/detail.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/batch/(.*)",
-      "dest": "/public/pages/batch.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/episode/(.*)",
-      "dest": "/public/pages/episode.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/genre-list/?",
-      "dest": "/public/pages/genre-list.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/genres/(.*)/page/(.*)",
-      "dest": "/public/pages/genre-list.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/genres/(.*)",
-      "dest": "/public/pages/genre-list.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/schedule/?",
-      "dest": "/public/pages/schedule.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/search/?",
-      "dest": "/public/pages/search.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/status/?",
-      "dest": "/public/pages/status.html"
+      "dest": "server/server.js"
     },
     {
       "src": "/(.*)",
-      "status": 404,
-      "dest": "/public/errors/404.html"
+      "dest": "server/server.js"
     }
-  ],
-  "error": {
-    "404": "/public/errors/404.html",
-    "500": "/public/errors/500.html"
-  }
+  ]
 }
