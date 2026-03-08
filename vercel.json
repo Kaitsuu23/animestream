@@ -75,6 +75,10 @@
       "dest": "/schedule.html"
     },
     {
+      "src": "/search/?",
+      "dest": "/search.html"
+    },
+    {
       "src": "/status/?",
       "dest": "/status.html"
     }

@@ -95,6 +95,10 @@ app.get('/schedule/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/schedule.html'));
 });
 
+app.get('/search/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../public/search.html'));
+});
+
 app.get('/status', (req, res) => {
     res.sendFile(path.join(__dirname, '../public/status.html'));
 });

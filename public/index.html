@@ -91,7 +91,7 @@
 
     // If search query exists, redirect to search page
     if (searchQuery && postType === 'anime') {
-      window.location.href = `/search.html?s=${encodeURIComponent(searchQuery)}&post_type=anime`;
+      window.location.href = `/search/?s=${searchQuery}&post_type=anime`;
     }
 
     let currentSlide = 0;
