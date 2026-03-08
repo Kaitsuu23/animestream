@@ -151,7 +151,7 @@
 
         if (results.length > 0) {
           results.forEach(anime => {
-            searchGrid.appendChild(ui.createAnimeCard(anime));
+            searchGrid.appendChild(ui.createAnimeCard(anime, { hideStatus: true }));
           });
         } else {
           // Show no results with the searched keyword

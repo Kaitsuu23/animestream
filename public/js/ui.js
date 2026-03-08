@@ -1,5 +1,6 @@
 const ui = {
-  createAnimeCard(anime) {
+  createAnimeCard(anime, options = {}) {
+    const { hideStatus = false } = options;
     const card = document.createElement('div');
     card.className = 'anime-card fade-in';
 
@@ -56,9 +57,9 @@ const ui = {
       <div class="anime-card-image">
         <img src="${image}" alt="${title}" loading="lazy" onerror="this.src='https://via.placeholder.com/200x280'">
         
-        ${anime.status && (anime.status.toLowerCase().includes('ongoing') || anime.status.toLowerCase().includes('on-going')) ? `
+        ${!hideStatus && anime.status && (anime.status.toLowerCase().includes('ongoing') || anime.status.toLowerCase().includes('on-going')) ? `
         <div class="anime-status-badge ongoing">Ongoing</div>
-        ` : anime.status && anime.status.toLowerCase().includes('completed') ? `
+        ` : !hideStatus && anime.status && anime.status.toLowerCase().includes('completed') ? `
         <div class="anime-status-badge completed">Completed</div>
         ` : ''}
         
@@ -69,6 +70,8 @@ const ui = {
           </svg>
           <span style="vertical-align: middle;">${episodeBadge}</span>
         </div>` : ''}
+        
+        ${dateText ? `<div class="anime-date-badge">${dateText}</div>` : ''}
         
         ${dayText ? `
         <div class="anime-day-badge">
