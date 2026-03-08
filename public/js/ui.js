@@ -189,7 +189,7 @@ if (searchInput && searchResults) {
       try {
         console.log('Searching dropdown for:', keyword);
         const data = await api.search(keyword);
-        console.log('Dropdown search results:', data);
+        console.log('Dropdown search raw response:', JSON.stringify(data, null, 2));
         searchResults.innerHTML = '';
 
         // Try different possible data structures
@@ -205,6 +205,8 @@ if (searchInput && searchResults) {
         }
 
         console.log('Dropdown parsed results:', results);
+        console.log('Results is array?', Array.isArray(results));
+        console.log('Results length:', results.length);
 
         if (!Array.isArray(results)) {
           console.warn('Results is not an array:', results);
@@ -234,6 +236,7 @@ if (searchInput && searchResults) {
           
           searchResults.classList.add('active');
         } else {
+          console.log('No results found or empty array');
           searchResults.innerHTML = '<div style="padding: 1rem; text-align: center; color: var(--text-secondary);">No results found</div>';
           searchResults.classList.add('active');
         }
