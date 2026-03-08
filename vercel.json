@@ -1,8 +1,16 @@
 {
   "version": 2,
-  "buildCommand": "echo 'Static site, no build needed'",
-  "outputDirectory": "public",
+  "builds": [
+    {
+      "src": "server/server.js",
+      "use": "@vercel/node"
+    }
+  ],
   "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "server/server.js"
+    },
     {
       "src": "/service-worker.js",
       "headers": {

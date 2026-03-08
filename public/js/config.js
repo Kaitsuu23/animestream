@@ -3,10 +3,10 @@
 if (!window.API_CONFIG) {
   const API_CONFIG = {
     // Development: use local server
-    // Production: use Railway/Vercel backend URL
+    // Production: use same domain (Vercel handles both frontend & API)
     BASE_URL: window.location.hostname === 'localhost' 
       ? 'http://localhost:3000/api'
-      : 'https://animestream-production-2756.up.railway.app/api'
+      : 'https://animestream-mauve.vercel.app/api'  // Use relative path, Vercel will handle routing
   };
 
   // Export for use in api.js
