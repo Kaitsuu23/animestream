@@ -88,14 +88,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     const searchQuery = urlParams.get('s');
     const postType = urlParams.get('post_type');
-
-    // If search query exists, show search results instead of homepage
-    if (searchQuery && postType === 'anime') {
-      // Hide homepage content, show search results
-      document.addEventListener('DOMContentLoaded', () => {
-        showSearchResults(searchQuery);
-      });
-    }
+    const isSearchMode = searchQuery && postType === 'anime';
 
     let currentSlide = 0;
     let slideInterval;
@@ -323,8 +316,11 @@
     }
 
     // Load homepage or search results
-    if (searchQuery && postType === 'anime') {
-      // Search mode - will be handled by DOMContentLoaded
+    if (isSearchMode) {
+      // Search mode - hide hero and show search results
+      document.addEventListener('DOMContentLoaded', () => {
+        showSearchResults(searchQuery);
+      });
     } else {
       // Normal homepage
       loadHome();
