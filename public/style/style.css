@@ -284,7 +284,7 @@ body {
   position: absolute;
   inset: 0;
   background-size: cover;
-  background-position: center;
+  background-position: top center;
   filter: brightness(0.5);
   transition: transform 0.3s;
 }
@@ -701,7 +701,7 @@ body {
   .hero {
     height: auto;
     min-height: unset;
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 7;
     border-radius: 0;
     margin-bottom: 1.5rem;
     margin-left: -1rem;
@@ -711,7 +711,7 @@ body {
   }
 
   .hero-slide {
-    aspect-ratio: 16 / 9;
+    aspect-ratio: 16 / 7;
   }
 
   .hero-bg {
@@ -860,7 +860,7 @@ body {
   }
 
   .hero {
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 16 / 7;
   }
 
   .hero-content {
@@ -1090,7 +1090,7 @@ body {
 /* Landscape Mobile */
 @media (max-width: 896px) and (orientation: landscape) {
   .hero {
-    aspect-ratio: 21 / 9;
+    aspect-ratio: 21 / 8;
     border-radius: 0;
     margin-left: -1rem;
     margin-right: -1rem;
