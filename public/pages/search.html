@@ -93,27 +93,15 @@
     (function() {
       // Get search query from URL
       const urlParams = new URLSearchParams(window.location.search);
-      const query = urlParams.get('s');
-      const postType = urlParams.get('post_type');
+      const query = urlParams.get('keyword') || urlParams.get('s'); // Support both formats
       const searchGrid = document.getElementById('searchGrid');
       const searchTitle = document.getElementById('searchTitle');
       const noResults = document.getElementById('noResults');
       const searchInput = document.getElementById('searchInput');
 
-      // Update URL to show /?s=... instead of /search.html?s=...
-      if (query && postType === 'anime') {
-        const cleanUrl = `/?s=${query}&post_type=anime`;
-        window.history.replaceState({}, '', cleanUrl);
-      }
-
-      // Redirect to home if not anime search
-      if (postType && postType !== 'anime') {
-        window.location.href = '/';
-      }
-
-      // Set search input value (decode + to space)
+      // Set search input value
       if (query) {
-        searchInput.value = query.replace(/\+/g, ' ');
+        searchInput.value = decodeURIComponent(query.replace(/\+/g, ' '));
       }
 
     async function performSearch(keyword) {
@@ -191,9 +179,7 @@
       if (e.key === 'Enter') {
         const keyword = searchInput.value.trim();
         if (keyword) {
-          // Replace spaces with + for URL
-          const encodedKeyword = keyword.replace(/\s+/g, '+');
-          window.location.href = `/?s=${encodedKeyword}&post_type=anime`;
+          window.location.href = `/search/?keyword=${encodeURIComponent(keyword)}`;
         }
       }
     });
