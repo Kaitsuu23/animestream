@@ -194,12 +194,16 @@ if (searchInput && searchResults) {
 
         // Try different possible data structures
         let results = [];
-        if (data.data) {
+        if (data.data && data.data.animeList) {
+          results = data.data.animeList;
+        } else if (data.data) {
           results = data.data.results || data.data.anime || data.data;
         } else if (data.results) {
           results = data.results;
         } else if (data.anime) {
           results = data.anime;
+        } else if (data.animeList) {
+          results = data.animeList;
         } else if (Array.isArray(data)) {
           results = data;
         }
