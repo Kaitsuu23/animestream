@@ -1,4 +1,4 @@
-const CACHE_NAME = 'animestream-v2';
+const CACHE_NAME = 'animestream-v3';
 const urlsToCache = [
   '/',
   '/style/style.css',
@@ -37,40 +37,59 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch event - serve from cache, fallback to network
+// Fetch event - network first for API, cache first for static assets
 self.addEventListener('fetch', (event) => {
+  const { request } = event;
+  const url = new URL(request.url);
+
+  // Network-first strategy for API calls
+  if (url.pathname.includes('/api/')) {
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          // Clone and cache the fresh response
+          if (response && response.status === 200) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
+          return response;
+        })
+        .catch(() => {
+          // Fallback to cache if network fails
+          return caches.match(request);
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for static assets
   event.respondWith(
-    caches.match(event.request)
+    caches.match(request)
       .then((response) => {
-        // Cache hit - return response
         if (response) {
           return response;
         }
 
-        return fetch(event.request).then(
-          (response) => {
-            // Check if valid response
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-
-            // Clone the response
-            const responseToCache = response.clone();
-
-            // Cache API responses and images
-            if (event.request.url.includes('/api/') || 
-                event.request.url.match(/\.(jpg|jpeg|png|gif|webp)$/)) {
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-
+        return fetch(request).then((response) => {
+          // Check if valid response
+          if (!response || response.status !== 200 || response.type !== 'basic') {
             return response;
           }
-        ).catch(() => {
+
+          // Clone and cache images
+          if (request.url.match(/\.(jpg|jpeg|png|gif|webp|svg|ico)$/)) {
+            const responseToCache = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseToCache);
+            });
+          }
+
+          return response;
+        }).catch(() => {
           // If both cache and network fail, show offline page
-          if (event.request.mode === 'navigate') {
+          if (request.mode === 'navigate') {
             return caches.match('/pages/offline.html');
           }
         });
