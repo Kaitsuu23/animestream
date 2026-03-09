@@ -115,7 +115,6 @@
       const slug = anime.animeId || anime.slug;
       const poster = anime.poster || 'https://via.placeholder.com/1200x600';
       const title = anime.title || 'Featured Anime';
-      const episodes = anime.episodes || anime.episode || '';
       const status = anime.status || '';
       const score = anime.score || anime.releaseDay || '';
       
@@ -127,7 +126,6 @@
         <div class="hero-info">
           <div class="hero-badges">
             ${status ? `<span class="hero-badge ${status.toLowerCase().includes('ongoing') ? 'badge-ongoing' : 'badge-completed'}">${status}</span>` : ''}
-            ${episodes ? `<span class="hero-badge badge-episode">${episodes}</span>` : ''}
             ${score ? `<span class="hero-badge badge-score">⭐ ${score}</span>` : ''}
           </div>
           <h1 class="hero-title-modern">${title}</h1>
