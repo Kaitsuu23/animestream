@@ -51,15 +51,25 @@
   </nav>
 
   <div class="container">
-    <section class="hero" id="hero">
-      <div class="hero-slides">
-        <!-- Slides will be dynamically added here -->
+    <section class="hero-modern" id="hero">
+      <div class="hero-slider">
+        <div class="hero-slides-wrapper">
+          <!-- Slides will be dynamically added here -->
+        </div>
       </div>
-      <div class="hero-nav">
-        <button class="hero-nav-btn hero-prev">‹</button>
-        <button class="hero-nav-btn hero-next">›</button>
+      <div class="hero-controls">
+        <button class="hero-btn hero-prev" aria-label="Previous">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </button>
+        <button class="hero-btn hero-next" aria-label="Next">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
-      <div class="hero-dots"></div>
+      <div class="hero-indicators"></div>
     </section>
 
     <section class="section">
@@ -100,21 +110,42 @@
 
     function createHeroSlide(anime, index) {
       const slide = document.createElement('div');
-      slide.className = 'hero-slide';
+      slide.className = 'hero-slide-modern';
       
       const slug = anime.animeId || anime.slug;
       const poster = anime.poster || 'https://via.placeholder.com/1200x600';
       const title = anime.title || 'Featured Anime';
-      const description = `${anime.episodes || ''} Episodes • ${anime.releaseDay || anime.latestReleaseDate || anime.lastReleaseDate || ''}`;
+      const episodes = anime.episodes || anime.episode || '';
+      const status = anime.status || '';
+      const score = anime.score || anime.releaseDay || '';
       
       slide.innerHTML = `
-        <div class="hero-bg" style="background-image: url(${poster})"></div>
-        <div class="hero-content">
-          <h1 class="hero-title">${title}</h1>
-          <p class="hero-description">${description}</p>
-          <div class="hero-buttons">
-            <a href="/detail/${slug}" class="btn btn-primary">Watch Now</a>
-            <a href="/detail/${slug}" class="btn btn-secondary">More Info</a>
+        <div class="hero-backdrop">
+          <img src="${poster}" alt="${title}" loading="lazy">
+          <div class="hero-gradient"></div>
+        </div>
+        <div class="hero-info">
+          <div class="hero-badges">
+            ${status ? `<span class="hero-badge ${status.toLowerCase().includes('ongoing') ? 'badge-ongoing' : 'badge-completed'}">${status}</span>` : ''}
+            ${episodes ? `<span class="hero-badge badge-episode">${episodes}</span>` : ''}
+            ${score ? `<span class="hero-badge badge-score">⭐ ${score}</span>` : ''}
+          </div>
+          <h1 class="hero-title-modern">${title}</h1>
+          <div class="hero-actions">
+            <a href="/detail/${slug}" class="hero-btn-primary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+              Watch Now
+            </a>
+            <a href="/detail/${slug}" class="hero-btn-secondary">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              More Info
+            </a>
           </div>
         </div>
       `;
@@ -123,14 +154,14 @@
     }
 
     function updateSlide(index) {
-      const slidesContainer = document.querySelector('.hero-slides');
-      const dots = document.querySelectorAll('.hero-dot');
+      const wrapper = document.querySelector('.hero-slides-wrapper');
+      const indicators = document.querySelectorAll('.hero-indicator');
       
       currentSlide = index;
-      slidesContainer.style.transform = `translateX(-${currentSlide * 100}%)`;
+      wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
       
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('active', i === currentSlide);
+      indicators.forEach((indicator, i) => {
+        indicator.classList.toggle('active', i === currentSlide);
       });
     }
 
@@ -146,7 +177,7 @@
 
     function startAutoSlide() {
       stopAutoSlide();
-      slideInterval = setInterval(nextSlide, 5000); // Change slide every 5 seconds
+      slideInterval = setInterval(nextSlide, 6000);
     }
 
     function stopAutoSlide() {
@@ -156,29 +187,26 @@
     }
 
     function initHeroCarousel(animes) {
-      heroAnimes = animes.slice(0, 5); // Use first 5 anime for carousel
-      const slidesContainer = document.querySelector('.hero-slides');
-      const dotsContainer = document.querySelector('.hero-dots');
+      heroAnimes = animes.slice(0, 5);
+      const wrapper = document.querySelector('.hero-slides-wrapper');
+      const indicatorsContainer = document.querySelector('.hero-indicators');
       
-      // Clear existing content
-      slidesContainer.innerHTML = '';
-      dotsContainer.innerHTML = '';
+      wrapper.innerHTML = '';
+      indicatorsContainer.innerHTML = '';
       
-      // Create slides
       heroAnimes.forEach((anime, index) => {
-        slidesContainer.appendChild(createHeroSlide(anime, index));
+        wrapper.appendChild(createHeroSlide(anime, index));
         
-        // Create dot
-        const dot = document.createElement('div');
-        dot.className = `hero-dot ${index === 0 ? 'active' : ''}`;
-        dot.onclick = () => {
+        const indicator = document.createElement('button');
+        indicator.className = `hero-indicator ${index === 0 ? 'active' : ''}`;
+        indicator.setAttribute('aria-label', `Slide ${index + 1}`);
+        indicator.onclick = () => {
           updateSlide(index);
           startAutoSlide();
         };
-        dotsContainer.appendChild(dot);
+        indicatorsContainer.appendChild(indicator);
       });
       
-      // Setup navigation buttons
       const prevBtn = document.querySelector('.hero-prev');
       const nextBtn = document.querySelector('.hero-next');
       
